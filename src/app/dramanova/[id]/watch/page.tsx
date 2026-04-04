@@ -1,5 +1,3 @@
-'use client';
-
 import { Suspense } from 'react';
 import { GenericWatchContent, LoadingSkeleton, normalizeEpisodeStreamsGeneric } from '@/components/GenericWatchPage';
 import { getDramaNovaDetail } from '@/lib/api';

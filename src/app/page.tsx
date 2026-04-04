@@ -75,24 +75,11 @@ async function HomeContent() {
   const trendingDramas = Array.isArray(trendingData) ? trendingData : [];
   const lainnyaDramas = Array.isArray(lainnyaData) ? lainnyaData : [];
 
-  // Debug logging
-  console.log('[HomeContent]', {
-    latestCount: latestDramas.length,
-    trendingCount: trendingDramas.length,
-    lainnyaCount: lainnyaDramas.length,
-  });
-
   return (
     <>
       <DubIndoSection dramas={latestDramas} />
       <TrendingSection dramas={trendingDramas} />
-      {lainnyaDramas.length > 0 ? (
-        <LainnyaSection dramas={lainnyaDramas} />
-      ) : (
-        <div className="text-center py-8 text-zinc-400 text-sm">
-          Lainnya: Belum ada data dari API
-        </div>
-      )}
+      <LainnyaSection dramas={lainnyaDramas} />
     </>
   );
 }

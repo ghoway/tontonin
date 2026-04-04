@@ -17,12 +17,12 @@ async function ForYouSection() {
       ) : (
         dramas.slice(0, 18).map((drama: any, idx: number) => (
           <DramaCard
-            key={`${drama.bookId || drama.id || idx}`}
-            id={drama.bookId || drama.id || ''}
-            title={drama.bookName || drama.title || drama.name || 'Unknown'}
-            image={drama.coverWap || drama.poster || drama.cover || drama.image || '/placeholder.png'}
-            episodes={drama.chapterCount || drama.episodeCount || drama.episodes}
-            views={drama.playCount || drama.views}
+            key={`${drama.bookId || drama.book_id || drama.id || idx}`}
+            id={drama.bookId || drama.book_id || drama.id || ''}
+            title={drama.bookName || drama.book_title || drama.title || drama.name || 'Unknown'}
+            image={drama.coverWap || drama.book_pic || drama.poster || drama.cover || drama.image || '/placeholder.png'}
+            episodes={drama.chapterCount || drama.episodeCount || drama.episode_count || drama.episodes}
+            views={drama.playCount || drama.play_count || drama.views}
             type="reelshort"
           />
         ))

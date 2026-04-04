@@ -116,17 +116,44 @@ async function apiFetch(endpoint: string, options: FetchOptions = {}) {
   return requestPromise;
 }
 
+function asArray(payload: unknown): any[] {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+
+  const obj = payload as Record<string, unknown>;
+  const candidateKeys = ['data', 'result', 'results', 'list', 'lists', 'items', 'dramas', 'episodes', 'books', 'cell'];
+  for (const key of candidateKeys) {
+    const value = obj[key];
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === 'object') {
+      const nested = asArray(value);
+      if (nested.length > 0) return nested;
+    }
+  }
+
+  return [];
+}
+
 // DramaBox APIs
 export async function getDramaBoxForYou(page?: number) {
-  return apiFetch(`/api/dramabox/foryou${page ? `?page=${page}` : ''}`);
+  const result = await apiFetch(`/api/dramabox/foryou${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getDramaBoxLatest() {
-  return apiFetch('/api/dramabox/latest');
+  const result = await apiFetch('/api/dramabox/latest');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getDramaBoxTrending() {
-  return apiFetch('/api/dramabox/trending');
+  const result = await apiFetch('/api/dramabox/trending');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getDramaBoxSearch(query: string) {
@@ -138,7 +165,10 @@ export async function getDramaBoxDetail(bookId: string) {
 }
 
 export async function getDramaBoxAllEpisode(bookId: string) {
-  return apiFetch(`/api/dramabox/allepisode?bookId=${bookId}`);
+  const result = await apiFetch(`/api/dramabox/allepisode?bookId=${bookId}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return result;
 }
 
 export async function decryptDramaBoxUrl(url: string) {
@@ -147,7 +177,10 @@ export async function decryptDramaBoxUrl(url: string) {
 
 // ReelShort APIs
 export async function getReelShortForYou(page?: number) {
-  return apiFetch(`/api/reelshort/foryou${page ? `?page=${page}` : ''}`);
+  const result = await apiFetch(`/api/reelshort/foryou${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getReelShortSearch(query: string) {
@@ -198,15 +231,24 @@ export async function getNetShortAllEpisode(shortPlayId: string) {
 
 // Melolo APIs
 export async function getMeloloForYou(offset?: number) {
-  return apiFetch(`/api/melolo/foryou${offset ? `?offset=${offset}` : ''}`);
+  const result = await apiFetch(`/api/melolo/foryou${offset ? `?offset=${offset}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getMeloloLatest() {
-  return apiFetch('/api/melolo/latest');
+  const result = await apiFetch('/api/melolo/latest');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getMeloloTrending() {
-  return apiFetch('/api/melolo/trending');
+  const result = await apiFetch('/api/melolo/trending');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getMeloloSearch(query: string) {

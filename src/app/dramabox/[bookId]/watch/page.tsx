@@ -43,6 +43,30 @@ function pickFirstNumber(obj: Record<string, unknown>, keys: string[]) {
 }
 
 function normalizeEpisodeStreams(raw: unknown): EpisodeStream[] {
+  // Fast path for DramaBox real response format
+  if (Array.isArray(raw)) {
+    const direct = raw
+      .map((item: any) => {
+        const episode = typeof item?.chapterIndex === 'number' ? item.chapterIndex + 1 : undefined;
+        const streamUrl =
+          item?.cdnList?.[0]?.videoPathList?.[0]?.videoPath ||
+          item?.videoPath ||
+          item?.url;
+
+        if (!episode || typeof streamUrl !== 'string') return null;
+        return {
+          episode,
+          encryptedUrl: streamUrl.includes('.encrypt.') ? streamUrl : undefined,
+          streamUrl: streamUrl.includes('.encrypt.') ? undefined : streamUrl,
+        } as EpisodeStream;
+      })
+      .filter(Boolean) as EpisodeStream[];
+
+    if (direct.length > 0) {
+      return direct.sort((a, b) => a.episode - b.episode);
+    }
+  }
+
   const objects = flattenObjects(raw);
   const map = new Map<number, EpisodeStream>();
 
@@ -50,7 +74,7 @@ function normalizeEpisodeStreams(raw: unknown): EpisodeStream[] {
     // Try multiple episode number keys
     const episode = pickFirstNumber(item, [
       'episode', 'ep', 'episodeNo', 'episodeNumber', 'number',
-      'chapter', 'chapterNo', 'chapterNumber', 'index',
+      'chapter', 'chapterNo', 'chapterNumber', 'chapterIndex', 'index',
       'seq', 'index', 'no', 'num', 'e', 'c'
     ]);
     
@@ -58,18 +82,20 @@ function normalizeEpisodeStreams(raw: unknown): EpisodeStream[] {
     const url = pickFirstString(item, [
       'url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link',
       'mediaUrl', 'downloadUrl', 'streamLink', 'video', 'stream',
-      'streamingUrl', 'watchUrl', 'playStream', 'source', 'm3u8'
+      'streamingUrl', 'watchUrl', 'playStream', 'source', 'm3u8', 'videoPath'
     ]);
-    
-    if (!episode || !url || !Number.isFinite(episode)) continue;
 
-    const existing = map.get(episode) || { episode };
+    if (episode === undefined || !url || !Number.isFinite(episode)) continue;
+
+    const normalizedEpisode = episode === 0 ? 1 : episode;
+
+    const existing = map.get(normalizedEpisode) || { episode: normalizedEpisode };
     if (url.includes('.encrypt.')) {
       existing.encryptedUrl = existing.encryptedUrl || url;
     } else if (url.startsWith('http')) {
       existing.streamUrl = existing.streamUrl || url;
     }
-    map.set(episode, existing);
+    map.set(normalizedEpisode, existing);
   }
 
   return Array.from(map.values()).sort((a, b) => a.episode - b.episode);
@@ -113,9 +139,6 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
         </div>
       );
     }
-
-    // Debug: Log the allepisode response structure
-    console.log('[WatchPage] allEpisodeData structure:', allEpisodeData);
 
     const streams = normalizeEpisodeStreams(allEpisodeData);
 
