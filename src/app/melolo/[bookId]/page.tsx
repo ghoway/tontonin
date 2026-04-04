@@ -28,8 +28,9 @@ function pickMeloloDetailObject(input: any): any | null {
 
 function normalizeImageUrl(value: unknown): string {
   if (typeof value !== 'string' || !value.trim()) return '';
-  if (value.startsWith('//')) return `https:${value}`;
-  return value;
+  const normalized = value.startsWith('//') ? `https:${value}` : value;
+  if (normalized.includes('x-signature=')) return normalized;
+  return normalized.replace(/\.heic(\?.*)?$/i, '.jpg$1');
 }
 
 export default async function DetailPage({ params }: { params: Promise<{ bookId: string }> }) {
@@ -72,7 +73,15 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
 
   const title = drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown';
   const poster = normalizeImageUrl(
-    drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || drama.book_cover || drama.cover_url
+    drama.coverWap ||
+      drama.cover ||
+      drama.book_pic ||
+      drama.first_chapter_cover ||
+      drama.thumb_url ||
+      drama.poster ||
+      drama.image ||
+      drama.book_cover ||
+      drama.cover_url
   );
   const synopsis =
     drama.introduction ||

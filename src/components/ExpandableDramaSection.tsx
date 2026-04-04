@@ -31,6 +31,8 @@ export function ExpandableDramaSection({
       drama.coverWap ||
       drama.cover ||
       drama.book_pic ||
+      drama.first_chapter_cover ||
+      drama.thumb_url ||
       drama.poster ||
       drama.image ||
       drama.book_cover ||
@@ -40,8 +42,9 @@ export function ExpandableDramaSection({
       '';
 
     if (typeof raw !== 'string' || !raw.trim()) return '/placeholder.svg';
-    if (raw.startsWith('//')) return `https:${raw}`;
-    return raw;
+    const normalized = raw.startsWith('//') ? `https:${raw}` : raw;
+    if (normalized.includes('x-signature=')) return normalized;
+    return normalized.replace(/\.heic(\?.*)?$/i, '.jpg$1');
   };
 
   return (

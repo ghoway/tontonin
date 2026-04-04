@@ -102,6 +102,15 @@ export function WatchClient({
     return map;
   }, [streams]);
 
+  const sourceType = useMemo(() => {
+    if (!resolvedUrl) return undefined;
+    const clean = resolvedUrl.split('?')[0].toLowerCase();
+    if (clean.endsWith('.m3u8')) return 'application/x-mpegURL';
+    if (clean.endsWith('.mpd')) return 'application/dash+xml';
+    if (clean.endsWith('.webm')) return 'video/webm';
+    return undefined;
+  }, [resolvedUrl]);
+
   useEffect(() => {
     let isActive = true;
 
@@ -231,11 +240,13 @@ export function WatchClient({
             ref={videoRef}
             className="w-full h-full"
             controls
+            playsInline
+            preload="metadata"
             controlsList="nodownload"
             poster={drama.coverWap}
             key={`${currentEpisode}-${resolvedUrl}`}
           >
-            {resolvedUrl ? <source src={resolvedUrl} type="video/mp4" /> : null}
+            {resolvedUrl ? <source src={resolvedUrl} type={sourceType} /> : null}
             Your browser does not support the video tag.
           </video>
 

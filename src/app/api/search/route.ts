@@ -61,9 +61,22 @@ function normalize(provider: Provider, items: any[]) {
       pickStringDeep(item, ['bookName', 'book_name', 'book_title', 'shortPlayName', 'title', 'name']) ||
       'Unknown';
     let image =
-      pickStringDeep(item, ['coverWap', 'cover', 'book_pic', 'poster', 'image', 'thumbnail', 'cover_url']) ||
+      pickStringDeep(item, [
+        'coverWap',
+        'cover',
+        'book_pic',
+        'first_chapter_cover',
+        'thumb_url',
+        'poster',
+        'image',
+        'thumbnail',
+        'cover_url',
+      ]) ||
       '/placeholder.svg';
     if (image.startsWith('//')) image = `https:${image}`;
+    if (!image.includes('x-signature=')) {
+      image = image.replace(/\.heic(\?.*)?$/i, '.jpg$1');
+    }
 
     return { id, title, image, provider };
   });

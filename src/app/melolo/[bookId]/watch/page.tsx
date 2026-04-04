@@ -27,12 +27,29 @@ function pickMeloloDetailObject(input: any): any | null {
 }
 
 function normalizeMeloloDrama(drama: any) {
+  const rawCover =
+    drama.coverWap ||
+    drama.cover ||
+    drama.book_pic ||
+    drama.first_chapter_cover ||
+    drama.thumb_url ||
+    drama.poster ||
+    drama.image ||
+    drama.book_cover ||
+    drama.cover_url ||
+    '';
+  const normalizedCover =
+    typeof rawCover === 'string'
+      ? rawCover.includes('x-signature=')
+        ? rawCover
+        : rawCover.replace(/\.heic(\?.*)?$/i, '.jpg$1')
+      : '';
+
   return {
     ...drama,
     bookId: drama.bookId || drama.book_id || drama.id || '',
     bookName: drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown',
-    coverWap:
-      drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || drama.book_cover || drama.cover_url || '',
+    coverWap: normalizedCover,
     chapterCount: drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || 0,
     introduction: drama.introduction || drama.description || drama.abstract || drama.summary || drama.synopsis || 'No synopsis available',
     tags: drama.tags || drama.genres || drama.tag_list || [],
