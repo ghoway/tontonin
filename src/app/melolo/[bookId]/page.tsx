@@ -10,6 +10,7 @@ function pickMeloloDetailObject(input: any): any | null {
   if (typeof input !== 'object') return null;
 
   const candidates = [
+    input.data?.video_data,
     input.data?.book,
     input.data?.detail,
     input.data,
@@ -71,27 +72,42 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
     );
   }
 
-  const title = drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown';
+  const title =
+    drama.series_title ||
+    drama.bookName ||
+    drama.book_name ||
+    drama.book_title ||
+    drama.title ||
+    drama.name ||
+    'Unknown';
   const poster = normalizeImageUrl(
-    drama.coverWap ||
+    drama.series_cover ||
+      drama.thumb_url ||
+      drama.coverWap ||
       drama.cover ||
       drama.book_pic ||
       drama.first_chapter_cover ||
-      drama.thumb_url ||
       drama.poster ||
       drama.image ||
       drama.book_cover ||
       drama.cover_url
   );
   const synopsis =
+    drama.series_intro ||
     drama.introduction ||
     drama.description ||
     drama.abstract ||
     drama.summary ||
     drama.synopsis ||
     'No synopsis available';
-  const genres = drama.tags || drama.genres || drama.tag_list || [];
-  const episodeCount = drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || 0;
+  const genres = drama.tags || drama.genres || drama.tag_list || drama.abstract_tags || [];
+  const episodeCount =
+    drama.episode_cnt ||
+    drama.chapterCount ||
+    drama.episodeCount ||
+    drama.chapter_count ||
+    drama.episode_count ||
+    0;
 
   return (
     <div className="bg-black text-white min-h-screen">

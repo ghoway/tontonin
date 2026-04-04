@@ -254,7 +254,19 @@ export async function getMeloloTrending() {
 }
 
 export async function getMeloloSearch(query: string) {
-  return apiFetch(`/api/melolo/search?query=${encodeURIComponent(query)}`);
+  const result = await apiFetch(`/api/melolo/search?query=${encodeURIComponent(query)}`);
+
+  const searchData = (result as any)?.data?.search_data;
+  if (Array.isArray(searchData)) {
+    const books = searchData.flatMap((entry: any) =>
+      Array.isArray(entry?.books) ? entry.books : []
+    );
+    if (books.length > 0) return books;
+  }
+
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getMeloloDetail(bookId: string) {

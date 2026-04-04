@@ -8,6 +8,7 @@ type EpisodeStream = {
   episode: number;
   encryptedUrl?: string;
   streamUrl?: string;
+  providerVideoId?: string;
 };
 
 interface WatchClientProps {
@@ -141,6 +142,42 @@ export function WatchClient({
         } finally {
           if (isActive) setIsResolving(false);
         }
+        return;
+      }
+
+      if (provider === 'melolo') {
+        const selectedStream = streamMap.get(currentEpisode);
+        const videoId = selectedStream?.providerVideoId;
+        if (!videoId) {
+          setResolvedUrl('');
+          return;
+        }
+
+        setIsResolving(true);
+        try {
+          const response = await fetch(
+            `/api/player/melolo?videoId=${encodeURIComponent(videoId)}`,
+            { cache: 'force-cache' }
+          );
+          if (!response.ok) {
+            setResolvedUrl('');
+            return;
+          }
+          const payload = await response.json();
+          const realUrl = pickStreamUrl(payload);
+          if (!realUrl) {
+            setResolvedUrl('');
+            return;
+          }
+          resolvedUrlCacheRef.current.set(currentEpisode, realUrl);
+          if (isActive) setResolvedUrl(realUrl);
+          return;
+        } catch {
+          if (isActive) setResolvedUrl('');
+          return;
+        } finally {
+          if (isActive) setIsResolving(false);
+        }
       }
 
       setResolvedUrl('');
@@ -212,7 +249,7 @@ export function WatchClient({
     return () => {
       isActive = false;
     };
-  }, [currentEpisode, streamMap]);
+  }, [currentEpisode, streamMap, provider, providerBookId, showError]);
 
   const handleEpisodeChange = (ep: number) => {
     setCurrentEpisode(ep);

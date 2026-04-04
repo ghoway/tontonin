@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
-import { GenericWatchContent, LoadingSkeleton, normalizeEpisodeStreamsGeneric } from '@/components/GenericWatchPage';
-import { getMeloloDetail, getMeloloStream } from '@/lib/api';
+import { Navigation } from '@/components/Navigation';
+import { WatchClient } from '@/components/WatchClient';
+import { LoadingSkeleton } from '@/components/GenericWatchPage';
+import { getMeloloDetail } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -10,6 +12,7 @@ function pickMeloloDetailObject(input: any): any | null {
   if (typeof input !== 'object') return null;
 
   const candidates = [
+    input.data?.video_data,
     input.data?.book,
     input.data?.detail,
     input.data,
@@ -28,11 +31,12 @@ function pickMeloloDetailObject(input: any): any | null {
 
 function normalizeMeloloDrama(drama: any) {
   const rawCover =
+    drama.series_cover ||
+    drama.thumb_url ||
     drama.coverWap ||
     drama.cover ||
     drama.book_pic ||
     drama.first_chapter_cover ||
-    drama.thumb_url ||
     drama.poster ||
     drama.image ||
     drama.book_cover ||
@@ -47,12 +51,14 @@ function normalizeMeloloDrama(drama: any) {
 
   return {
     ...drama,
-    bookId: drama.bookId || drama.book_id || drama.id || '',
-    bookName: drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown',
+    bookId: drama.series_id_str || drama.bookId || drama.book_id || drama.id || '',
+    bookName: drama.series_title || drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown',
     coverWap: normalizedCover,
-    chapterCount: drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || 0,
-    introduction: drama.introduction || drama.description || drama.abstract || drama.summary || drama.synopsis || 'No synopsis available',
-    tags: drama.tags || drama.genres || drama.tag_list || [],
+    chapterCount: drama.episode_cnt || drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || 0,
+    introduction:
+      drama.series_intro || drama.introduction || drama.description || drama.abstract || drama.summary || drama.synopsis ||
+      'No synopsis available',
+    tags: drama.tags || drama.genres || drama.tag_list || drama.abstract_tags || [],
   };
 }
 
@@ -78,37 +84,41 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
     );
   }
 
-  let streams: any[] = [];
+  const videoList = Array.isArray(dramaRaw?.video_list) ? dramaRaw.video_list : [];
+  const streams = videoList
+    .map((item: any, index: number) => ({
+      episode: Number(item?.vid_index) || index + 1,
+      providerVideoId: item?.vid ? String(item.vid) : undefined,
+    }))
+    .filter((item: any) => !!item.providerVideoId)
+    .sort((a: any, b: any) => a.episode - b.episode);
 
-  // Try to get all episodes/videos from detail
-  if (dramaRaw?.data && Array.isArray(dramaRaw.data)) {
-    streams = normalizeEpisodeStreamsGeneric(
-      dramaRaw.data,
-      ['episode', 'ep', 'episodeNo', 'index', 'number', 'chapter', 'chapterIndex'],
-      ['url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link', 'videoPath', 'play_url']
-    );
-  }
-
-  // If no streams found, fetch by videoId (`vid`) from detail
-  if (streams.length === 0) {
-    const videoId = dramaRaw?.vid || dramaRaw?.videoId || dramaRaw?.video_id;
-    if (videoId) {
-      const streamData = await getMeloloStream(String(videoId));
-      streams = normalizeEpisodeStreamsGeneric(
-        streamData,
-        ['episode', 'ep', 'episodeNo', 'index', 'number', 'chapter', 'chapterIndex'],
-        ['url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link', 'videoPath', 'play_url']
-      );
-    }
-  }
+  const chapterCount = drama.chapterCount || streams.length || 0;
 
   return (
-    <GenericWatchContent
-      drama={drama}
-      streams={streams}
-      backHref={`/melolo/${bookId}`}
-      episode={episode || '1'}
-    />
+    <div className="bg-black text-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Navigation />
+        <div className="mt-8">
+          <WatchClient
+            drama={{
+              bookId: drama.bookId || bookId,
+              bookName: drama.bookName,
+              coverWap: drama.coverWap,
+              chapterCount,
+              introduction: drama.introduction,
+              tags: drama.tags,
+              playCount: String(drama.series_play_cnt || ''),
+            }}
+            streams={streams}
+            initialEpisode={episode || '1'}
+            backHref={`/melolo/${bookId}`}
+            provider="melolo"
+            providerBookId={bookId}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 

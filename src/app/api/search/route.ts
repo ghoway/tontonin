@@ -52,21 +52,40 @@ function toList(payload: unknown): any[] {
   return [];
 }
 
+function toMeloloList(payload: unknown): any[] {
+  if (!payload || typeof payload !== 'object') return [];
+  const root = payload as Record<string, any>;
+
+  const booksFromSearchData = root?.data?.search_data;
+  if (Array.isArray(booksFromSearchData)) {
+    const flattened = booksFromSearchData.flatMap((entry: any) =>
+      Array.isArray(entry?.books) ? entry.books : []
+    );
+    if (flattened.length > 0) return flattened;
+  }
+
+  return toList(payload);
+}
+
 function normalize(provider: Provider, items: any[]) {
   return items.slice(0, 8).map((item, idx) => {
     const id =
-      pickStringDeep(item, ['bookId', 'book_id', 'shortPlayId', 'id', 'bookid']) ||
-      String(idx);
+      provider === 'melolo'
+        ? pickStringDeep(item, ['book_id', 'bookId', 'series_id_str', 'seriesId']) || String(idx)
+        : pickStringDeep(item, ['bookId', 'book_id', 'shortPlayId', 'id', 'bookid']) || String(idx);
     const title =
-      pickStringDeep(item, ['bookName', 'book_name', 'book_title', 'shortPlayName', 'title', 'name']) ||
-      'Unknown';
+      provider === 'melolo'
+        ? pickStringDeep(item, ['book_name', 'bookName', 'series_title', 'title', 'name']) || 'Unknown'
+        : pickStringDeep(item, ['bookName', 'book_name', 'book_title', 'shortPlayName', 'title', 'name']) ||
+          'Unknown';
     let image =
       pickStringDeep(item, [
+        ...(provider === 'melolo' ? ['thumb_url', 'series_cover'] : []),
         'coverWap',
         'cover',
         'book_pic',
-        'first_chapter_cover',
         'thumb_url',
+        'first_chapter_cover',
         'poster',
         'image',
         'thumbnail',
@@ -97,7 +116,8 @@ export async function GET(request: NextRequest) {
   else if (provider === 'freereels') raw = await getFreeReelsSearch(q);
   else if (provider === 'dramanova') raw = await getDramaNovaSearch(q);
 
-  const items = normalize(provider, toList(raw));
+  const sourceItems = provider === 'melolo' ? toMeloloList(raw) : toList(raw);
+  const items = normalize(provider, sourceItems);
   return NextResponse.json(
     { items },
     { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
