@@ -158,6 +158,10 @@ export async function getReelShortDetail(bookId: string) {
   return apiFetch(`/api/reelshort/detail?bookId=${bookId}`);
 }
 
+export async function getReelShortAllEpisode(bookId: string) {
+  return apiFetch(`/api/reelshort/episode?bookId=${bookId}`);
+}
+
 // ShortMax APIs
 export async function getShortMaxForYou(page?: number) {
   return apiFetch(`/api/shortmax/foryou${page ? `?page=${page}` : ''}`);
@@ -175,6 +179,10 @@ export async function getShortMaxDetail(shortPlayId: string) {
   return apiFetch(`/api/shortmax/detail?shortPlayId=${shortPlayId}`);
 }
 
+export async function getShortMaxAllEpisode(shortPlayId: string) {
+  return apiFetch(`/api/shortmax/allepisode?shortPlayId=${shortPlayId}`);
+}
+
 // NetShort APIs
 export async function getNetShortForYou(page?: number) {
   return apiFetch(`/api/netshort/foryou${page ? `?page=${page}` : ''}`);
@@ -182,6 +190,10 @@ export async function getNetShortForYou(page?: number) {
 
 export async function getNetShortSearch(query: string) {
   return apiFetch(`/api/netshort/search?query=${encodeURIComponent(query)}`);
+}
+
+export async function getNetShortAllEpisode(shortPlayId: string) {
+  return apiFetch(`/api/netshort/allepisode?shortPlayId=${shortPlayId}`);
 }
 
 // Melolo APIs
@@ -199,6 +211,14 @@ export async function getMeloloTrending() {
 
 export async function getMeloloSearch(query: string) {
   return apiFetch(`/api/melolo/search?query=${encodeURIComponent(query)}`);
+}
+
+export async function getMeloloDetail(bookId: string) {
+  return apiFetch(`/api/melolo/detail?bookId=${bookId}`);
+}
+
+export async function getMeloloStream(videoId: string) {
+  return apiFetch(`/api/melolo/stream?videoId=${videoId}`);
 }
 
 // FreeReels APIs
@@ -225,4 +245,8 @@ export async function getDramaNovaSearch(query: string) {
 
 export async function getDramaNovaDetail(id: string) {
   return apiFetch(`/api/dramanova/detail?id=${id}`);
+}
+
+export async function getDramaNovaGetVideo(fileId: string) {
+  return apiFetch(`/api/dramanova/getvideo?fileId=${fileId}`);
 }

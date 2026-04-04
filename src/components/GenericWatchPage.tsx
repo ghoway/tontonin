@@ -1,9 +1,6 @@
-import { Suspense } from 'react';
+import { ReactNode } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { WatchClient } from '@/components/WatchClient';
-import { getDramaBoxAllEpisode, getDramaBoxDetail } from '@/lib/api';
-
-export const revalidate = 300;
 
 type EpisodeStream = {
   episode: number;
@@ -42,24 +39,17 @@ function pickFirstNumber(obj: Record<string, unknown>, keys: string[]) {
   return undefined;
 }
 
-function normalizeEpisodeStreams(raw: unknown): EpisodeStream[] {
+export function normalizeEpisodeStreamsGeneric(
+  raw: unknown,
+  episodeKeys: string[],
+  urlKeys: string[]
+): EpisodeStream[] {
   const objects = flattenObjects(raw);
   const map = new Map<number, EpisodeStream>();
 
   for (const item of objects) {
-    // Try multiple episode number keys
-    const episode = pickFirstNumber(item, [
-      'episode', 'ep', 'episodeNo', 'episodeNumber', 'number',
-      'chapter', 'chapterNo', 'chapterNumber', 'index',
-      'seq', 'index', 'no', 'num', 'e', 'c'
-    ]);
-    
-    // Try multiple URL keys
-    const url = pickFirstString(item, [
-      'url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link',
-      'mediaUrl', 'downloadUrl', 'streamLink', 'video', 'stream',
-      'streamingUrl', 'watchUrl', 'playStream', 'source', 'm3u8'
-    ]);
+    const episode = pickFirstNumber(item, episodeKeys);
+    const url = pickFirstString(item, urlKeys);
     
     if (!episode || !url || !Number.isFinite(episode)) continue;
 
@@ -89,44 +79,48 @@ function LoadingSkeleton() {
   );
 }
 
-async function WatchContent({ bookId, episode }: { bookId: string; episode?: string }) {
-  const [detailData, allEpisodeData] = await Promise.all([
-    getDramaBoxDetail(bookId),
-    getDramaBoxAllEpisode(bookId),
-  ]);
-
-  if (!detailData) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
-      </div>
-    );
-  }
-
-  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
-
-  if (!drama) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
-      </div>
-    );
-  }
-
-  const streams = normalizeEpisodeStreams(allEpisodeData);
-
-  return <WatchClient drama={drama} streams={streams} initialEpisode={episode || '1'} />;
+export interface GenericDrama {
+  id?: string;
+  bookId?: string;
+  bookName: string;
+  title?: string;
+  coverWap?: string;
+  poster?: string;
+  cover?: string;
+  chapterCount?: number;
+  episodeCount?: number;
+  introduction?: string;
+  description?: string;
+  synopsis?: string;
+  tags?: string[];
+  genres?: string[];
+  playCount?: string;
+  views?: string;
 }
 
-export default async function WatchPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ bookId: string }>;
-  searchParams: Promise<{ ep?: string }>;
-}) {
-  const { bookId } = await params;
-  const { ep } = await searchParams;
+interface GenericWatchContentProps {
+  drama: GenericDrama;
+  streams: EpisodeStream[];
+  backHref: string;
+  episode?: string;
+}
+
+export function GenericWatchContent({
+  drama,
+  streams,
+  backHref,
+  episode,
+}: GenericWatchContentProps) {
+  // Normalize drama object
+  const normalizedDrama = {
+    bookId: drama.id || drama.bookId || '',
+    bookName: drama.bookName || drama.title || 'Unknown',
+    coverWap: drama.coverWap || drama.poster || drama.cover || '',
+    chapterCount: drama.chapterCount || drama.episodeCount || 0,
+    introduction: drama.introduction || drama.description || drama.synopsis || 'No synopsis available',
+    tags: drama.tags || drama.genres || [],
+    playCount: drama.playCount || drama.views || '',
+  };
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -134,11 +128,16 @@ export default async function WatchPage({
         <Navigation />
 
         <div className="mt-8">
-          <Suspense fallback={<LoadingSkeleton />}>
-            <WatchContent bookId={bookId} episode={ep} />
-          </Suspense>
+          <WatchClient
+            drama={normalizedDrama}
+            streams={streams}
+            initialEpisode={episode || '1'}
+            backHref={backHref}
+          />
         </div>
       </div>
     </div>
   );
 }
+
+export { LoadingSkeleton };

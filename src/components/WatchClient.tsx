@@ -22,11 +22,18 @@ interface WatchClientProps {
   };
   streams: EpisodeStream[];
   initialEpisode?: string;
+  backHref?: string;
 }
 
 function pickStreamUrl(payload: unknown): string | null {
   if (!payload) return null;
-  if (typeof payload === 'string') return payload;
+  if (typeof payload === 'string') {
+    // Only return valid URLs
+    if (payload.startsWith('http://') || payload.startsWith('https://')) {
+      return payload;
+    }
+    return null;
+  }
   if (Array.isArray(payload)) {
     for (const item of payload) {
       const found = pickStreamUrl(item);
@@ -36,11 +43,24 @@ function pickStreamUrl(payload: unknown): string | null {
   }
   if (typeof payload === 'object') {
     const obj = payload as Record<string, unknown>;
-    const directKeys = ['url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link'];
+    // Priority key order for finding stream URLs
+    const directKeys = [
+      'url', 'streamUrl', 'playUrl', 'videoUrl', 'src', 'link',
+      'mediaUrl', 'downloadUrl', 'streamLink', 'video', 'stream',
+      'streamingUrl', 'watchUrl', 'playStream', 'source'
+    ];
+    
     for (const key of directKeys) {
       const value = obj[key];
-      if (typeof value === 'string' && value.trim()) return value;
+      if (typeof value === 'string' && value.trim()) {
+        // Verify it's a valid URL
+        if (value.startsWith('http://') || value.startsWith('https://')) {
+          return value;
+        }
+      }
     }
+    
+    // Recursively search nested objects and arrays
     for (const value of Object.values(obj)) {
       const found = pickStreamUrl(value);
       if (found) return found;
@@ -49,7 +69,7 @@ function pickStreamUrl(payload: unknown): string | null {
   return null;
 }
 
-export function WatchClient({ drama, streams, initialEpisode = '1' }: WatchClientProps) {
+export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: WatchClientProps) {
   const { showError } = useError();
   const [currentEpisode, setCurrentEpisode] = useState(parseInt(initialEpisode));
   const [selectedQuality, setSelectedQuality] = useState('1080p');
@@ -155,7 +175,7 @@ export function WatchClient({ drama, streams, initialEpisode = '1' }: WatchClien
     <div className="space-y-6">
       {/* Back Button */}
       <Link
-        href={`/dramabox/${drama.bookId}`}
+        href={backHref || `/dramabox/${drama.bookId}`}
         prefetch={false}
         className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-4"
       >
