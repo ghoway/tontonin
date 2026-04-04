@@ -34,7 +34,7 @@ export function DramaCard({
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               const img = e.target as HTMLImageElement;
-              img.src = 'https://via.placeholder.com/300x400?text=No+Image';
+              img.src = '/placeholder.svg';
             }}
           />
           

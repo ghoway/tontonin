@@ -37,7 +37,7 @@ export function LainnyaSection({ dramas }: LainnyaSectionProps) {
               key={`lainnya-${drama.bookId || idx}`}
               id={drama.bookId || ''}
               title={drama.bookName || 'Unknown'}
-              image={drama.coverWap || '/placeholder.png'}
+              image={drama.coverWap || '/placeholder.svg'}
               episodes={drama.chapterCount}
               views={drama.playCount}
               type="dramabox"

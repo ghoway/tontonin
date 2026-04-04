@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
-import { DramaCard } from '@/components/DramaCard';
-import { getMeloloForYou, getMeloloLatest, getMeloloTrending } from '@/lib/api';
+import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
+import { getMeloloForYou, getMeloloLatest, getMeloloSearch, getMeloloTrending } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -10,74 +10,32 @@ async function ForYouSection() {
   const data = await getMeloloForYou();
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Untuk Kamu">
-      {dramas.length === 0 ? (
-        <p className="text-zinc-400">Belum ada data</p>
-      ) : (
-        dramas.slice(0, 12).map((drama: any, idx: number) => (
-          <DramaCard
-            key={`${drama.bookId || drama.book_id || drama.id || idx}`}
-            id={drama.bookId || drama.book_id || drama.id || ''}
-            title={drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown'}
-            image={drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || '/placeholder.png'}
-            episodes={drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || drama.episodes}
-            views={drama.playCount || drama.play_count || drama.views}
-            type="melolo"
-          />
-        ))
-      )}
-    </Section>
-  );
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="melolo" />;
 }
 
 async function LatestSection() {
   const data = await getMeloloLatest();
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Terbaru">
-      {dramas.length === 0 ? (
-        <p className="text-zinc-400">Belum ada data</p>
-      ) : (
-        dramas.slice(0, 12).map((drama: any, idx: number) => (
-          <DramaCard
-            key={`${drama.bookId || drama.book_id || drama.id || idx}`}
-            id={drama.bookId || drama.book_id || drama.id || ''}
-            title={drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown'}
-            image={drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || '/placeholder.png'}
-            episodes={drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || drama.episodes}
-            views={drama.playCount || drama.play_count || drama.views}
-            type="melolo"
-          />
-        ))
-      )}
-    </Section>
-  );
+  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="melolo" />;
 }
 
 async function TrendingSection() {
   const data = await getMeloloTrending();
   const dramas = Array.isArray(data) ? data : [];
 
+  return <ExpandableDramaSection title="Trending" dramas={dramas} type="melolo" />;
+}
+
+async function SearchSection({ query }: { query: string }) {
+  const data = await getMeloloSearch(query);
+  const dramas = Array.isArray(data) ? data : [];
+
   return (
-    <Section title="Trending">
-      {dramas.length === 0 ? (
-        <p className="text-zinc-400">Belum ada data</p>
-      ) : (
-        dramas.slice(0, 12).map((drama: any, idx: number) => (
-          <DramaCard
-            key={`${drama.bookId || drama.book_id || drama.id || idx}`}
-            id={drama.bookId || drama.book_id || drama.id || ''}
-            title={drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown'}
-            image={drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || '/placeholder.png'}
-            episodes={drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || drama.episodes}
-            views={drama.playCount || drama.play_count || drama.views}
-            type="melolo"
-          />
-        ))
-      )}
-    </Section>
+    <>
+      <div className="text-zinc-400 mb-4 ml-2">Hasil pencarian: "{query}"</div>
+      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="melolo" initialVisible={18} loadStep={9} />
+    </>
   );
 }
 
@@ -98,24 +56,39 @@ function LoadingSkeleton() {
   );
 }
 
-export default function MeloloPage() {
+export default async function MeloloPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const query = q?.trim() || '';
+
   return (
     <div className="bg-black text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
         
         <div className="mt-8">
-          <Suspense fallback={<LoadingSkeleton />}>
-            <ForYouSection />
-          </Suspense>
-          
-          <Suspense fallback={<LoadingSkeleton />}>
-            <LatestSection />
-          </Suspense>
-          
-          <Suspense fallback={<LoadingSkeleton />}>
-            <TrendingSection />
-          </Suspense>
+          {query ? (
+            <Suspense fallback={<LoadingSkeleton />}>
+              <SearchSection query={query} />
+            </Suspense>
+          ) : (
+            <>
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ForYouSection />
+              </Suspense>
+              
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LatestSection />
+              </Suspense>
+              
+              <Suspense fallback={<LoadingSkeleton />}>
+                <TrendingSection />
+              </Suspense>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,77 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { Section } from '@/components/Section';
+import { DramaCard } from '@/components/DramaCard';
+
+type ProviderType = 'dramabox' | 'reelshort' | 'shortmax' | 'netshort' | 'melolo' | 'freereels' | 'dramanova';
+
+interface ExpandableDramaSectionProps {
+  title: string;
+  dramas: any[];
+  type: ProviderType;
+  initialVisible?: number;
+  loadStep?: number;
+}
+
+export function ExpandableDramaSection({
+  title,
+  dramas,
+  type,
+  initialVisible = 12,
+  loadStep = 6,
+}: ExpandableDramaSectionProps) {
+  const [visibleCount, setVisibleCount] = useState(initialVisible);
+
+  const visibleItems = useMemo(() => dramas.slice(0, visibleCount), [dramas, visibleCount]);
+  const hasMore = visibleCount < dramas.length;
+
+  return (
+    <>
+      <Section title={title}>
+        {visibleItems.map((drama: any, idx: number) => (
+          <DramaCard
+            key={`${drama.bookId || drama.book_id || drama.shortPlayId || drama.id || idx}`}
+            id={drama.bookId || drama.book_id || drama.shortPlayId || drama.id || ''}
+            title={
+              drama.bookName ||
+              drama.book_name ||
+              drama.book_title ||
+              drama.title ||
+              drama.name ||
+              'Unknown'
+            }
+            image={
+              drama.coverWap ||
+              drama.cover ||
+              drama.book_pic ||
+              drama.poster ||
+              drama.image ||
+              '/placeholder.svg'
+            }
+            episodes={
+              drama.chapterCount ||
+              drama.episodeCount ||
+              drama.chapter_count ||
+              drama.episode_count ||
+              drama.episodes
+            }
+            views={drama.playCount || drama.play_count || drama.views}
+            type={type}
+          />
+        ))}
+      </Section>
+
+      {hasMore && (
+        <div className="flex justify-center -mt-4 mb-8">
+          <button
+            onClick={() => setVisibleCount((prev) => Math.min(prev + loadStep, dramas.length))}
+            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          >
+            Show More
+          </button>
+        </div>
+      )}
+    </>
+  );
+}

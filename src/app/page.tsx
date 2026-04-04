@@ -17,7 +17,7 @@ function DubIndoSection({ dramas }: { dramas: any[] }) {
           key={`dub-${drama.bookId || idx}`}
           id={drama.bookId || ''}
           title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
+          image={drama.coverWap || '/placeholder.svg'}
           episodes={drama.chapterCount}
           views={drama.playCount}
           type="dramabox"
@@ -37,7 +37,7 @@ function TrendingSection({ dramas }: { dramas: any[] }) {
           key={`trending-${drama.bookId || idx}`}
           id={drama.bookId || ''}
           title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
+          image={drama.coverWap || '/placeholder.svg'}
           episodes={drama.chapterCount}
           views={drama.playCount}
           type="dramabox"

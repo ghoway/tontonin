@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
-import { DramaCard } from '@/components/DramaCard';
-import { getDramaBoxForYou, getDramaBoxLatest, getDramaBoxTrending } from '@/lib/api';
+import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
+import { getDramaBoxForYou, getDramaBoxLatest, getDramaBoxSearch, getDramaBoxTrending } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -10,62 +10,32 @@ async function ForYouSection() {
   const data = await getDramaBoxForYou(1);
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Untuk Kamu">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="dramabox"
-        />
-      ))}
-    </Section>
-  );
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="dramabox" />;
 }
 
 async function LatestSection() {
   const data = await getDramaBoxLatest();
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Terbaru">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="dramabox"
-        />
-      ))}
-    </Section>
-  );
+  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="dramabox" />;
 }
 
 async function TrendingSection() {
   const data = await getDramaBoxTrending();
   const dramas = Array.isArray(data) ? data : [];
 
+  return <ExpandableDramaSection title="Trending" dramas={dramas} type="dramabox" />;
+}
+
+async function SearchSection({ query }: { query: string }) {
+  const data = await getDramaBoxSearch(query);
+  const dramas = Array.isArray(data) ? data : [];
+
   return (
-    <Section title="Trending">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="dramabox"
-        />
-      ))}
-    </Section>
+    <>
+      <div className="text-zinc-400 mb-4 ml-2">Hasil pencarian: "{query}"</div>
+      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="dramabox" initialVisible={18} loadStep={9} />
+    </>
   );
 }
 
@@ -86,24 +56,39 @@ function LoadingSkeleton() {
   );
 }
 
-export default function DramaBoxPage() {
+export default async function DramaBoxPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const query = q?.trim() || '';
+
   return (
     <div className="bg-black text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
         
         <div className="mt-8">
-          <Suspense fallback={<LoadingSkeleton />}>
-            <ForYouSection />
-          </Suspense>
-          
-          <Suspense fallback={<LoadingSkeleton />}>
-            <LatestSection />
-          </Suspense>
-          
-          <Suspense fallback={<LoadingSkeleton />}>
-            <TrendingSection />
-          </Suspense>
+          {query ? (
+            <Suspense fallback={<LoadingSkeleton />}>
+              <SearchSection query={query} />
+            </Suspense>
+          ) : (
+            <>
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ForYouSection />
+              </Suspense>
+              
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LatestSection />
+              </Suspense>
+              
+              <Suspense fallback={<LoadingSkeleton />}>
+                <TrendingSection />
+              </Suspense>
+            </>
+          )}
         </div>
       </div>
     </div>

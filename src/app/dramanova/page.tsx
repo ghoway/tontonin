@@ -17,7 +17,7 @@ async function HomeSection() {
           key={`${drama.id || idx}`}
           id={drama.id || ''}
           title={drama.title || drama.bookName || 'Unknown'}
-          image={drama.cover || drama.coverWap || '/placeholder.png'}
+          image={drama.cover || drama.coverWap || '/placeholder.svg'}
           episodes={drama.subtitle ? (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) : 0}
           type="dramanova"
         />

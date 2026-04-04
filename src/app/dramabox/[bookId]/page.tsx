@@ -36,7 +36,7 @@ export default async function DramaBoxDetailPage({
           <div className="md:col-span-1">
             <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
               <img
-                src={drama.coverWap || '/placeholder.png'}
+                  src={drama.coverWap || '/placeholder.svg'}
                 alt={drama.bookName || 'Drama poster'}
                 className="w-full h-auto object-cover"
               />
