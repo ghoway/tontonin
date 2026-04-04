@@ -49,12 +49,14 @@ export function ExpandableDramaSection({
       <Section title={title}>
         {visibleItems.map((drama: any, idx: number) => (
           <DramaCard
-            key={`${drama.bookId || drama.book_id || drama.shortPlayId || drama.id || idx}`}
-            id={drama.bookId || drama.book_id || drama.shortPlayId || drama.id || ''}
+            key={`${drama.bookId || drama.book_id || drama.shortPlayId || drama.shortplayid || drama.id || idx}`}
+            id={drama.bookId || drama.book_id || drama.shortPlayId || drama.shortplayid || drama.id || ''}
             title={
               drama.bookName ||
               drama.book_name ||
               drama.book_title ||
+              drama.shortPlayName ||
+              drama.short_play_name ||
               drama.title ||
               drama.name ||
               'Unknown'
