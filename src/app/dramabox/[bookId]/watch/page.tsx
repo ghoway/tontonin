@@ -90,32 +90,54 @@ function LoadingSkeleton() {
 }
 
 async function WatchContent({ bookId, episode }: { bookId: string; episode?: string }) {
-  const [detailData, allEpisodeData] = await Promise.all([
-    getDramaBoxDetail(bookId),
-    getDramaBoxAllEpisode(bookId),
-  ]);
+  try {
+    const [detailData, allEpisodeData] = await Promise.all([
+      getDramaBoxDetail(bookId),
+      getDramaBoxAllEpisode(bookId),
+    ]);
 
-  if (!detailData) {
+    if (!detailData) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
+        </div>
+      );
+    }
+
+    const drama = Array.isArray(detailData) ? detailData[0] : detailData;
+
+    if (!drama) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
+        </div>
+      );
+    }
+
+    // Debug: Log the allepisode response structure
+    console.log('[WatchPage] allEpisodeData structure:', allEpisodeData);
+
+    const streams = normalizeEpisodeStreams(allEpisodeData);
+
+    // If no streams found, try alternate parsing
+    let finalStreams = streams;
+    if (finalStreams.length === 0 && allEpisodeData) {
+      // Fallback: If allEpisodeData has a data/result/episodes property
+      const dataArray = allEpisodeData?.data || allEpisodeData?.result || allEpisodeData?.episodes || allEpisodeData?.list || [];
+      if (Array.isArray(dataArray)) {
+        finalStreams = normalizeEpisodeStreams(dataArray);
+      }
+    }
+
+    return <WatchClient drama={drama} streams={finalStreams} initialEpisode={episode || '1'} />;
+  } catch (error) {
+    console.error('[WatchPage] Error:', error);
     return (
       <div className="text-center py-12">
-        <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
+        <p className="text-red-400 mb-4">Terjadi kesalahan saat memuat drama</p>
       </div>
     );
   }
-
-  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
-
-  if (!drama) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
-      </div>
-    );
-  }
-
-  const streams = normalizeEpisodeStreams(allEpisodeData);
-
-  return <WatchClient drama={drama} streams={streams} initialEpisode={episode || '1'} />;
 }
 
 export default async function WatchPage({

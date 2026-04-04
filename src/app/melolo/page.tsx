@@ -10,19 +10,28 @@ async function ForYouSection() {
   const data = await getMeloloForYou();
   const dramas = Array.isArray(data) ? data : [];
 
+  // Debug: Check first item structure
+  if (dramas.length > 0) {
+    console.log('[MeloloForYou] First item:', JSON.stringify(dramas[0], null, 2));
+  }
+
   return (
     <Section title="Untuk Kamu">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="melolo"
-        />
-      ))}
+      {dramas.length === 0 ? (
+        <p className="text-zinc-400">Belum ada data</p>
+      ) : (
+        dramas.slice(0, 12).map((drama: any, idx: number) => (
+          <DramaCard
+            key={`${drama.bookId || drama.id || idx}`}
+            id={drama.bookId || drama.id || ''}
+            title={drama.bookName || drama.title || drama.name || 'Unknown'}
+            image={drama.coverWap || drama.poster || drama.cover || drama.image || '/placeholder.png'}
+            episodes={drama.chapterCount || drama.episodeCount || drama.episodes}
+            views={drama.playCount || drama.views}
+            type="melolo"
+          />
+        ))
+      )}
     </Section>
   );
 }
@@ -33,17 +42,21 @@ async function LatestSection() {
 
   return (
     <Section title="Terbaru">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="melolo"
-        />
-      ))}
+      {dramas.length === 0 ? (
+        <p className="text-zinc-400">Belum ada data</p>
+      ) : (
+        dramas.slice(0, 12).map((drama: any, idx: number) => (
+          <DramaCard
+            key={`${drama.bookId || drama.id || idx}`}
+            id={drama.bookId || drama.id || ''}
+            title={drama.bookName || drama.title || drama.name || 'Unknown'}
+            image={drama.coverWap || drama.poster || drama.cover || drama.image || '/placeholder.png'}
+            episodes={drama.chapterCount || drama.episodeCount || drama.episodes}
+            views={drama.playCount || drama.views}
+            type="melolo"
+          />
+        ))
+      )}
     </Section>
   );
 }
@@ -54,17 +67,21 @@ async function TrendingSection() {
 
   return (
     <Section title="Trending">
-      {dramas.slice(0, 12).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="melolo"
-        />
-      ))}
+      {dramas.length === 0 ? (
+        <p className="text-zinc-400">Belum ada data</p>
+      ) : (
+        dramas.slice(0, 12).map((drama: any, idx: number) => (
+          <DramaCard
+            key={`${drama.bookId || drama.id || idx}`}
+            id={drama.bookId || drama.id || ''}
+            title={drama.bookName || drama.title || drama.name || 'Unknown'}
+            image={drama.coverWap || drama.poster || drama.cover || drama.image || '/placeholder.png'}
+            episodes={drama.chapterCount || drama.episodeCount || drama.episodes}
+            views={drama.playCount || drama.views}
+            type="melolo"
+          />
+        ))
+      )}
     </Section>
   );
 }

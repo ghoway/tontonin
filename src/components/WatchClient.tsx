@@ -223,10 +223,16 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
         <p className="text-zinc-400">
           Episode {currentEpisode} dari {drama.chapterCount}
         </p>
-        {isResolving && <p className="text-zinc-400 text-sm">Memuat video...</p>}
+        {isResolving && <p className="text-yellow-400 text-sm">⏳ Memuat video...</p>}
         {!isResolving && !resolvedUrl && (
-          <p className="text-red-400 text-sm">Video untuk episode ini belum tersedia.</p>
+          <p className="text-red-400 text-sm">
+            ❌ Video belum tersedia. API sedang ban? Coba refresh halaman atau tunggu beberapa saat.
+          </p>
         )}
+        {/* Debug: Show available episodes */}
+        <p className="text-zinc-500 text-xs">
+          Total episode tersedia: {streams.length}
+        </p>
       </div>
 
       {/* Episode List */}

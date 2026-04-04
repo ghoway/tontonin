@@ -12,17 +12,21 @@ async function ForYouSection() {
 
   return (
     <Section title="Untuk Kamu">
-      {dramas.slice(0, 18).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.png'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
-          type="reelshort"
-        />
-      ))}
+      {dramas.length === 0 ? (
+        <p className="text-zinc-400">Belum ada data</p>
+      ) : (
+        dramas.slice(0, 18).map((drama: any, idx: number) => (
+          <DramaCard
+            key={`${drama.bookId || drama.id || idx}`}
+            id={drama.bookId || drama.id || ''}
+            title={drama.bookName || drama.title || drama.name || 'Unknown'}
+            image={drama.coverWap || drama.poster || drama.cover || drama.image || '/placeholder.png'}
+            episodes={drama.chapterCount || drama.episodeCount || drama.episodes}
+            views={drama.playCount || drama.views}
+            type="reelshort"
+          />
+        ))
+      )}
     </Section>
   );
 }
