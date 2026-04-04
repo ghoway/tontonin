@@ -191,8 +191,10 @@ export async function getReelShortDetail(bookId: string) {
   return apiFetch(`/api/reelshort/detail?bookId=${bookId}`);
 }
 
-export async function getReelShortAllEpisode(bookId: string) {
-  return apiFetch(`/api/reelshort/episode?bookId=${bookId}`);
+export async function getReelShortEpisode(bookId: string, episodeNumber: number) {
+  return apiFetch(
+    `/api/reelshort/episode?bookId=${encodeURIComponent(bookId)}&episodeNumber=${episodeNumber}`
+  );
 }
 
 // ShortMax APIs

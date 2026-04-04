@@ -23,6 +23,8 @@ interface WatchClientProps {
   streams: EpisodeStream[];
   initialEpisode?: string;
   backHref?: string;
+  provider?: 'dramabox' | 'reelshort' | 'melolo' | 'shortmax' | 'netshort' | 'freereels' | 'dramanova';
+  providerBookId?: string;
 }
 
 function pickStreamUrl(payload: unknown): string | null {
@@ -69,7 +71,14 @@ function pickStreamUrl(payload: unknown): string | null {
   return null;
 }
 
-export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: WatchClientProps) {
+export function WatchClient({
+  drama,
+  streams,
+  initialEpisode = '1',
+  backHref,
+  provider,
+  providerBookId,
+}: WatchClientProps) {
   const { showError } = useError();
   const [currentEpisode, setCurrentEpisode] = useState(parseInt(initialEpisode));
   const [selectedQuality, setSelectedQuality] = useState('1080p');
@@ -79,7 +88,7 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
   const resolvedUrlCacheRef = useRef<Map<number, string>>(new Map());
 
   const qualities = ['1080p', '720p', '540p', '360p', '144p'];
-  const maxEpisode = drama.chapterCount || 0;
+  const maxEpisode = drama.chapterCount || streams.length || 0;
   const episodeButtons = useMemo(
     () => Array.from({ length: maxEpisode }, (_, i) => i + 1),
     [maxEpisode]
@@ -96,6 +105,38 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
   useEffect(() => {
     let isActive = true;
 
+    const tryResolveFromProvider = async () => {
+      if (provider === 'reelshort' && providerBookId) {
+        setIsResolving(true);
+        try {
+          const response = await fetch(
+            `/api/player/reelshort?bookId=${encodeURIComponent(providerBookId)}&episodeNumber=${currentEpisode}`,
+            { cache: 'force-cache' }
+          );
+          if (!response.ok) {
+            setResolvedUrl('');
+            return;
+          }
+          const payload = await response.json();
+          const realUrl = pickStreamUrl(payload);
+          if (!realUrl) {
+            setResolvedUrl('');
+            return;
+          }
+          resolvedUrlCacheRef.current.set(currentEpisode, realUrl);
+          if (isActive) setResolvedUrl(realUrl);
+          return;
+        } catch {
+          if (isActive) setResolvedUrl('');
+          return;
+        } finally {
+          if (isActive) setIsResolving(false);
+        }
+      }
+
+      setResolvedUrl('');
+    };
+
     const resolveEpisodeUrl = async () => {
       const cached = resolvedUrlCacheRef.current.get(currentEpisode);
       if (cached) {
@@ -105,7 +146,7 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
 
       const selectedStream = streamMap.get(currentEpisode);
       if (!selectedStream) {
-        setResolvedUrl('');
+        await tryResolveFromProvider();
         return;
       }
 
@@ -116,7 +157,7 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
       }
 
       if (!selectedStream.encryptedUrl) {
-        setResolvedUrl('');
+        await tryResolveFromProvider();
         return;
       }
 
@@ -226,13 +267,9 @@ export function WatchClient({ drama, streams, initialEpisode = '1', backHref }: 
         {isResolving && <p className="text-yellow-400 text-sm">⏳ Memuat video...</p>}
         {!isResolving && !resolvedUrl && (
           <p className="text-red-400 text-sm">
-            ❌ Video belum tersedia. API sedang ban? Coba refresh halaman atau tunggu beberapa saat.
+            ❌ Video untuk episode ini belum tersedia.
           </p>
         )}
-        {/* Debug: Show available episodes */}
-        <p className="text-zinc-500 text-xs">
-          Total episode tersedia: {streams.length}
-        </p>
       </div>
 
       {/* Episode List */}
