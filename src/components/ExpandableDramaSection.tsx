@@ -26,6 +26,24 @@ export function ExpandableDramaSection({
   const visibleItems = useMemo(() => dramas.slice(0, visibleCount), [dramas, visibleCount]);
   const hasMore = visibleCount < dramas.length;
 
+  const normalizeImage = (drama: any) => {
+    const raw =
+      drama.coverWap ||
+      drama.cover ||
+      drama.book_pic ||
+      drama.poster ||
+      drama.image ||
+      drama.book_cover ||
+      drama.cover_url ||
+      drama.thumbnail ||
+      drama.poster_url ||
+      '';
+
+    if (typeof raw !== 'string' || !raw.trim()) return '/placeholder.svg';
+    if (raw.startsWith('//')) return `https:${raw}`;
+    return raw;
+  };
+
   return (
     <>
       <Section title={title}>
@@ -42,12 +60,7 @@ export function ExpandableDramaSection({
               'Unknown'
             }
             image={
-              drama.coverWap ||
-              drama.cover ||
-              drama.book_pic ||
-              drama.poster ||
-              drama.image ||
-              '/placeholder.svg'
+              normalizeImage(drama)
             }
             episodes={
               drama.chapterCount ||

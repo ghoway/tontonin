@@ -4,6 +4,34 @@ import { getMeloloDetail } from '@/lib/api';
 
 export const revalidate = 300;
 
+function pickMeloloDetailObject(input: any): any | null {
+  if (!input) return null;
+  if (Array.isArray(input)) return input[0] || null;
+  if (typeof input !== 'object') return null;
+
+  const candidates = [
+    input.data?.book,
+    input.data?.detail,
+    input.data,
+    input.result,
+    input.book,
+    input.detail,
+    input,
+  ];
+
+  for (const c of candidates) {
+    if (c && typeof c === 'object' && !Array.isArray(c)) return c;
+  }
+
+  return null;
+}
+
+function normalizeImageUrl(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return '';
+  if (value.startsWith('//')) return `https:${value}`;
+  return value;
+}
+
 export default async function DetailPage({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = await params;
   const detailData = await getMeloloDetail(bookId);
@@ -24,7 +52,7 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
     );
   }
 
-  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
+  const drama = pickMeloloDetailObject(detailData);
 
   if (!drama) {
     return (
@@ -42,11 +70,19 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
     );
   }
 
-  const title = drama.bookName || drama.title || 'Unknown';
-  const poster = drama.coverWap || drama.poster || drama.cover || '';
-  const synopsis = drama.introduction || drama.description || drama.synopsis || 'No synopsis available';
-  const genres = drama.tags || drama.genres || [];
-  const episodeCount = drama.chapterCount || drama.episodeCount || 0;
+  const title = drama.bookName || drama.book_name || drama.book_title || drama.title || drama.name || 'Unknown';
+  const poster = normalizeImageUrl(
+    drama.coverWap || drama.cover || drama.book_pic || drama.poster || drama.image || drama.book_cover || drama.cover_url
+  );
+  const synopsis =
+    drama.introduction ||
+    drama.description ||
+    drama.abstract ||
+    drama.summary ||
+    drama.synopsis ||
+    'No synopsis available';
+  const genres = drama.tags || drama.genres || drama.tag_list || [];
+  const episodeCount = drama.chapterCount || drama.episodeCount || drama.chapter_count || drama.episode_count || 0;
 
   return (
     <div className="bg-black text-white min-h-screen">
