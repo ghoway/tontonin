@@ -86,7 +86,7 @@ export function LainnyaSection() {
     };
 
     fetchInitial();
-  }, [initialized, showError]);
+  }, [initialized]);
 
   return (
     <>
