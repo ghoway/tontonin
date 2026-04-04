@@ -30,6 +30,7 @@ export function Navigation() {
           <Link
             key={item.href}
             href={item.href}
+            prefetch={false}
             className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
               isActive
                 ? 'bg-blue-600 text-white'

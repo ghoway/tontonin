@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getDramaNovaHome } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function HomeSection() {
   const data = await getDramaNovaHome(1);
   const dramas = Array.isArray(data) ? data : [];

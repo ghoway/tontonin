@@ -1,32 +1,119 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_TTL_MS = 5 * 60 * 1000;
+const API_ERROR_TTL_MS = 30 * 1000;
 
 interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: any;
 }
 
+type CacheEntry = {
+  expiresAt: number;
+  data: any;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __nontoninApiCache: Map<string, CacheEntry> | undefined;
+  // eslint-disable-next-line no-var
+  var __nontoninApiInflight: Map<string, Promise<any>> | undefined;
+}
+
+const apiCache = globalThis.__nontoninApiCache ?? new Map<string, CacheEntry>();
+const inflight = globalThis.__nontoninApiInflight ?? new Map<string, Promise<any>>();
+
+if (!globalThis.__nontoninApiCache) {
+  globalThis.__nontoninApiCache = apiCache;
+}
+
+if (!globalThis.__nontoninApiInflight) {
+  globalThis.__nontoninApiInflight = inflight;
+}
+
+function makeCacheKey(endpoint: string, options: FetchOptions) {
+  return JSON.stringify({
+    endpoint,
+    method: options.method || 'GET',
+    body: options.body ?? null,
+  });
+}
+
 async function apiFetch(endpoint: string, options: FetchOptions = {}) {
   const url = new URL(endpoint, API_URL);
-  
-  try {
-    const response = await fetch(url.toString(), {
-      method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
+  const method = options.method || 'GET';
+  const cacheable = method === 'GET';
+  const cacheKey = makeCacheKey(endpoint, options);
 
-    if (!response.ok) {
-      console.error(`API Error: ${response.status} ${response.statusText}`);
-      return null;
+  if (cacheable) {
+    const cached = apiCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.data;
     }
 
-    return await response.json();
-  } catch (error) {
-    console.error('API Fetch Error:', error);
-    return null;
+    const pending = inflight.get(cacheKey);
+    if (pending) {
+      return pending;
+    }
   }
+  
+  const requestPromise = (async () => {
+    try {
+      const response = await fetch(url.toString(), {
+        method,
+        cache: method !== 'GET' ? 'no-store' : 'force-cache',
+        next: method !== 'GET' ? undefined : { revalidate: 300 },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+
+      if (!response.ok) {
+        console.error(`API Error: ${response.status} ${response.statusText}`);
+
+        if (cacheable) {
+          apiCache.set(cacheKey, {
+            data: null,
+            expiresAt: Date.now() + API_ERROR_TTL_MS,
+          });
+        }
+
+        return null;
+      }
+
+      const json = await response.json();
+
+      if (cacheable) {
+        apiCache.set(cacheKey, {
+          data: json,
+          expiresAt: Date.now() + API_TTL_MS,
+        });
+      }
+
+      return json;
+    } catch (error) {
+      console.error('API Fetch Error:', error);
+
+      if (cacheable) {
+        apiCache.set(cacheKey, {
+          data: null,
+          expiresAt: Date.now() + API_ERROR_TTL_MS,
+        });
+      }
+
+      return null;
+    } finally {
+      if (cacheable) {
+        inflight.delete(cacheKey);
+      }
+    }
+  })();
+
+  if (cacheable) {
+    inflight.set(cacheKey, requestPromise);
+  }
+
+  return requestPromise;
 }
 
 // DramaBox APIs

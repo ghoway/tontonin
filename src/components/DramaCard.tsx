@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface DramaCardProps {
@@ -25,7 +24,7 @@ export function DramaCard({
   const baseUrl = type === 'dramabox' ? '/dramabox' : `/${type}`;
   
   return (
-    <Link href={`${baseUrl}/${id}`} className="group">
+    <Link href={`${baseUrl}/${id}`} prefetch={false} className="group">
       <div className="relative overflow-hidden rounded-lg bg-zinc-900 cursor-pointer hover:shadow-lg transition-shadow h-full">
         {/* Image */}
         <div className="relative h-60 w-full overflow-hidden bg-zinc-800">

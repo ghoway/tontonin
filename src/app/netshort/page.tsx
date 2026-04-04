@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getNetShortForYou } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function ForYouSection() {
   const data = await getNetShortForYou(1);
   const dramas = Array.isArray(data) ? data : [];

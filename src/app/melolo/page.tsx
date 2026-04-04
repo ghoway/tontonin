@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getMeloloForYou, getMeloloLatest, getMeloloTrending } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function ForYouSection() {
   const data = await getMeloloForYou();
   const dramas = Array.isArray(data) ? data : [];

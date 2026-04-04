@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getDramaBoxForYou, getDramaBoxLatest, getDramaBoxTrending } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function ForYouSection() {
   const data = await getDramaBoxForYou(1);
   const dramas = Array.isArray(data) ? data : [];

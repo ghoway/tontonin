@@ -5,14 +5,10 @@ import { DramaCard } from '@/components/DramaCard';
 import { LainnyaSection } from '@/components/LainnyaSection';
 import { getDramaBoxForYou, getDramaBoxLatest, getDramaBoxTrending } from '@/lib/api';
 
-async function DubIndoSection() {
-  const data = await getDramaBoxLatest();
-  
-  if (!data) {
-    return null;
-  }
+export const revalidate = 300;
 
-  const dramas = Array.isArray(data) ? data : [];
+function DubIndoSection({ dramas }: { dramas: any[] }) {
+  if (dramas.length === 0) return null;
 
   return (
     <Section title="Dub Indo">
@@ -31,14 +27,8 @@ async function DubIndoSection() {
   );
 }
 
-async function TrendingSection() {
-  const data = await getDramaBoxTrending();
-  
-  if (!data) {
-    return null;
-  }
-
-  const dramas = Array.isArray(data) ? data : [];
+function TrendingSection({ dramas }: { dramas: any[] }) {
+  if (dramas.length === 0) return null;
 
   return (
     <Section title="Trending">
@@ -74,6 +64,26 @@ function LoadingSkeleton() {
   );
 }
 
+async function HomeContent() {
+  const [latestData, trendingData, lainnyaData] = await Promise.all([
+    getDramaBoxLatest(),
+    getDramaBoxTrending(),
+    getDramaBoxForYou(1),
+  ]);
+
+  const latestDramas = Array.isArray(latestData) ? latestData : [];
+  const trendingDramas = Array.isArray(trendingData) ? trendingData : [];
+  const lainnyaDramas = Array.isArray(lainnyaData) ? lainnyaData : [];
+
+  return (
+    <>
+      <DubIndoSection dramas={latestDramas} />
+      <TrendingSection dramas={trendingDramas} />
+      <LainnyaSection dramas={lainnyaDramas} />
+    </>
+  );
+}
+
 export default function Home() {
   return (
     <div className="bg-black text-white min-h-screen">
@@ -84,14 +94,8 @@ export default function Home() {
         {/* Main Content */}
         <div className="mt-8 space-y-8">
           <Suspense fallback={<LoadingSkeleton />}>
-            <DubIndoSection />
+            <HomeContent />
           </Suspense>
-
-          <Suspense fallback={null}>
-            <TrendingSection />
-          </Suspense>
-
-          <LainnyaSection />
         </div>
       </div>
     </div>

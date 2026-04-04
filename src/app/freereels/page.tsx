@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getFreeReelsForYou, getFreeReelsHomepage } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function ForYouSection() {
   const data = await getFreeReelsForYou();
   const dramas = Array.isArray(data) ? data : [];

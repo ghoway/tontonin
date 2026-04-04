@@ -4,6 +4,8 @@ import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
 import { getShortMaxForYou, getShortMaxLatest } from '@/lib/api';
 
+export const revalidate = 300;
+
 async function ForYouSection() {
   const data = await getShortMaxForYou(1);
   const dramas = Array.isArray(data) ? data : [];
