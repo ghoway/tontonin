@@ -10,21 +10,37 @@ async function ForYouSection() {
   const data = await getDramaBoxForYou(1);
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="dramabox" />;
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
 }
 
 async function LatestSection() {
   const data = await getDramaBoxLatest();
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="dramabox" />;
+  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
 }
 
 async function TrendingSection() {
   const data = await getDramaBoxTrending();
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Trending" dramas={dramas} type="dramabox" />;
+  return <ExpandableDramaSection title="Trending" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
+}
+
+async function LainnyaSection() {
+  const [page1, page2] = await Promise.all([getDramaBoxForYou(1), getDramaBoxForYou(2)]);
+  const first = Array.isArray(page1) ? page1 : [];
+  const second = Array.isArray(page2) ? page2 : [];
+
+  const seen = new Set<string>();
+  const merged = [...first, ...second].filter((item: any, idx: number) => {
+    const key = String(item?.bookId || idx);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return <ExpandableDramaSection title="Lainnya" dramas={merged} type="dramabox" initialVisible={10} loadStep={6} />;
 }
 
 async function SearchSection({ query }: { query: string }) {
@@ -86,6 +102,10 @@ export default async function DramaBoxPage({
               
               <Suspense fallback={<LoadingSkeleton />}>
                 <TrendingSection />
+              </Suspense>
+
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LainnyaSection />
               </Suspense>
             </>
           )}
