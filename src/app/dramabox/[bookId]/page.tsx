@@ -87,6 +87,7 @@ export default async function DramaBoxDetailPage({
 
             <Link
               href={`/dramabox/${bookId}/watch`}
+              prefetch={false}
               className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center"
             >
               ▶ Mulai Tonton

@@ -1,7 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useError } from '@/components/ErrorModal';
+
+type EpisodeStream = {
+  episode: number;
+  encryptedUrl?: string;
+  streamUrl?: string;
+};
 
 interface WatchClientProps {
   drama: {
@@ -13,20 +20,129 @@ interface WatchClientProps {
     tags?: string[];
     playCount?: string;
   };
+  streams: EpisodeStream[];
   initialEpisode?: string;
 }
 
-export function WatchClient({ drama, initialEpisode = '1' }: WatchClientProps) {
+function pickStreamUrl(payload: unknown): string | null {
+  if (!payload) return null;
+  if (typeof payload === 'string') return payload;
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const found = pickStreamUrl(item);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (typeof payload === 'object') {
+    const obj = payload as Record<string, unknown>;
+    const directKeys = ['url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link'];
+    for (const key of directKeys) {
+      const value = obj[key];
+      if (typeof value === 'string' && value.trim()) return value;
+    }
+    for (const value of Object.values(obj)) {
+      const found = pickStreamUrl(value);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+export function WatchClient({ drama, streams, initialEpisode = '1' }: WatchClientProps) {
+  const { showError } = useError();
   const [currentEpisode, setCurrentEpisode] = useState(parseInt(initialEpisode));
   const [selectedQuality, setSelectedQuality] = useState('1080p');
+  const [resolvedUrl, setResolvedUrl] = useState<string>('');
+  const [isResolving, setIsResolving] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const resolvedUrlCacheRef = useRef<Map<number, string>>(new Map());
 
   const qualities = ['1080p', '720p', '540p', '360p', '144p'];
+  const maxEpisode = drama.chapterCount || 0;
+  const episodeButtons = useMemo(
+    () => Array.from({ length: maxEpisode }, (_, i) => i + 1),
+    [maxEpisode]
+  );
 
-  // Mock video source - replace with actual API endpoint
-  const getVideoUrl = (episodeNum: number, quality: string) => {
-    return `https://via.placeholder.com/1280x720?text=EP+${episodeNum}+${quality}`;
-  };
+  const streamMap = useMemo(() => {
+    const map = new Map<number, EpisodeStream>();
+    for (const stream of streams) {
+      map.set(stream.episode, stream);
+    }
+    return map;
+  }, [streams]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const resolveEpisodeUrl = async () => {
+      const cached = resolvedUrlCacheRef.current.get(currentEpisode);
+      if (cached) {
+        setResolvedUrl(cached);
+        return;
+      }
+
+      const selectedStream = streamMap.get(currentEpisode);
+      if (!selectedStream) {
+        setResolvedUrl('');
+        return;
+      }
+
+      if (selectedStream.streamUrl) {
+        resolvedUrlCacheRef.current.set(currentEpisode, selectedStream.streamUrl);
+        setResolvedUrl(selectedStream.streamUrl);
+        return;
+      }
+
+      if (!selectedStream.encryptedUrl) {
+        setResolvedUrl('');
+        return;
+      }
+
+      setIsResolving(true);
+      try {
+        const response = await fetch(
+          `/api/player/decrypt?url=${encodeURIComponent(selectedStream.encryptedUrl)}`,
+          { cache: 'force-cache' }
+        );
+
+        if (!response.ok) {
+          showError('Silahkan coba beberapa saat lagi');
+          setResolvedUrl('');
+          return;
+        }
+
+        const payload = await response.json();
+        const realUrl = pickStreamUrl(payload);
+        if (!realUrl) {
+          showError('Video tidak tersedia saat ini');
+          setResolvedUrl('');
+          return;
+        }
+
+        resolvedUrlCacheRef.current.set(currentEpisode, realUrl);
+        if (isActive) {
+          setResolvedUrl(realUrl);
+        }
+      } catch {
+        showError('Silahkan coba beberapa saat lagi');
+        if (isActive) {
+          setResolvedUrl('');
+        }
+      } finally {
+        if (isActive) {
+          setIsResolving(false);
+        }
+      }
+    };
+
+    resolveEpisodeUrl();
+
+    return () => {
+      isActive = false;
+    };
+  }, [currentEpisode, streamMap]);
 
   const handleEpisodeChange = (ep: number) => {
     setCurrentEpisode(ep);
@@ -40,6 +156,7 @@ export function WatchClient({ drama, initialEpisode = '1' }: WatchClientProps) {
       {/* Back Button */}
       <Link
         href={`/dramabox/${drama.bookId}`}
+        prefetch={false}
         className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-4"
       >
         ← Kembali
@@ -55,8 +172,9 @@ export function WatchClient({ drama, initialEpisode = '1' }: WatchClientProps) {
             controls
             controlsList="nodownload"
             poster={drama.coverWap}
+            key={`${currentEpisode}-${resolvedUrl}`}
           >
-            <source src={getVideoUrl(currentEpisode, selectedQuality)} type="video/mp4" />
+            {resolvedUrl ? <source src={resolvedUrl} type="video/mp4" /> : null}
             Your browser does not support the video tag.
           </video>
 
@@ -85,13 +203,17 @@ export function WatchClient({ drama, initialEpisode = '1' }: WatchClientProps) {
         <p className="text-zinc-400">
           Episode {currentEpisode} dari {drama.chapterCount}
         </p>
+        {isResolving && <p className="text-zinc-400 text-sm">Memuat video...</p>}
+        {!isResolving && !resolvedUrl && (
+          <p className="text-red-400 text-sm">Video untuk episode ini belum tersedia.</p>
+        )}
       </div>
 
       {/* Episode List */}
       <div className="space-y-3">
         <h3 className="text-xl font-semibold text-white">Daftar Episode</h3>
         <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-80 overflow-y-auto pr-2">
-          {Array.from({ length: drama.chapterCount }, (_, i) => i + 1).map((ep) => (
+          {episodeButtons.map((ep) => (
             <button
               key={ep}
               onClick={() => handleEpisodeChange(ep)}

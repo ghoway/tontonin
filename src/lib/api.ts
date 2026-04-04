@@ -137,6 +137,14 @@ export async function getDramaBoxDetail(bookId: string) {
   return apiFetch(`/api/dramabox/detail?bookId=${bookId}`);
 }
 
+export async function getDramaBoxAllEpisode(bookId: string) {
+  return apiFetch(`/api/dramabox/allepisode?bookId=${bookId}`);
+}
+
+export async function decryptDramaBoxUrl(url: string) {
+  return apiFetch(`/api/dramabox/decrypt?url=${encodeURIComponent(url)}`);
+}
+
 // ReelShort APIs
 export async function getReelShortForYou(page?: number) {
   return apiFetch(`/api/reelshort/foryou${page ? `?page=${page}` : ''}`);

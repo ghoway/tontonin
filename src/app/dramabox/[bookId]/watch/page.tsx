@@ -1,7 +1,67 @@
 import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { WatchClient } from '@/components/WatchClient';
-import { getDramaBoxDetail } from '@/lib/api';
+import { getDramaBoxAllEpisode, getDramaBoxDetail } from '@/lib/api';
+
+export const revalidate = 300;
+
+type EpisodeStream = {
+  episode: number;
+  encryptedUrl?: string;
+  streamUrl?: string;
+};
+
+function flattenObjects(input: unknown): any[] {
+  if (Array.isArray(input)) {
+    return input.flatMap(flattenObjects);
+  }
+  if (input && typeof input === 'object') {
+    const obj = input as Record<string, unknown>;
+    return [obj, ...Object.values(obj).flatMap(flattenObjects)];
+  }
+  return [];
+}
+
+function pickFirstString(obj: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = obj[key];
+    if (typeof value === 'string' && value.trim()) return value;
+  }
+  return undefined;
+}
+
+function pickFirstNumber(obj: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = obj[key];
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return undefined;
+}
+
+function normalizeEpisodeStreams(raw: unknown): EpisodeStream[] {
+  const objects = flattenObjects(raw);
+  const map = new Map<number, EpisodeStream>();
+
+  for (const item of objects) {
+    const episode = pickFirstNumber(item, ['episode', 'ep', 'episodeNo', 'chapter', 'chapterNo', 'index']);
+    const url = pickFirstString(item, ['url', 'playUrl', 'videoUrl', 'streamUrl', 'src', 'link']);
+    if (!episode || !url) continue;
+
+    const existing = map.get(episode) || { episode };
+    if (url.includes('.encrypt.')) {
+      existing.encryptedUrl = existing.encryptedUrl || url;
+    } else {
+      existing.streamUrl = existing.streamUrl || url;
+    }
+    map.set(episode, existing);
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.episode - b.episode);
+}
 
 function LoadingSkeleton() {
   return (
@@ -18,9 +78,12 @@ function LoadingSkeleton() {
 }
 
 async function WatchContent({ bookId, episode }: { bookId: string; episode?: string }) {
-  const data = await getDramaBoxDetail(bookId);
+  const [detailData, allEpisodeData] = await Promise.all([
+    getDramaBoxDetail(bookId),
+    getDramaBoxAllEpisode(bookId),
+  ]);
 
-  if (!data) {
+  if (!detailData) {
     return (
       <div className="text-center py-12">
         <p className="text-zinc-400 mb-4">Drama tidak ditemukan</p>
@@ -28,7 +91,7 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
     );
   }
 
-  const drama = Array.isArray(data) ? data[0] : data;
+  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
 
   if (!drama) {
     return (
@@ -38,7 +101,9 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
     );
   }
 
-  return <WatchClient drama={drama} initialEpisode={episode || '1'} />;
+  const streams = normalizeEpisodeStreams(allEpisodeData);
+
+  return <WatchClient drama={drama} streams={streams} initialEpisode={episode || '1'} />;
 }
 
 export default async function WatchPage({
