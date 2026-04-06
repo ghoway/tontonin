@@ -87,6 +87,7 @@ export function WatchClient({
   const [showEpisodeList, setShowEpisodeList] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const resolvedUrlCacheRef = useRef<Map<number, string>>(new Map());
+  const shouldAutoplayOnSourceChangeRef = useRef(true);
   const maxEpisode = drama.chapterCount || streams.length || 0;
   const episodeButtons = useMemo(
     () => Array.from({ length: maxEpisode }, (_, i) => i + 1),
@@ -155,6 +156,42 @@ export function WatchClient({
         try {
           const response = await fetch(
             `/api/player/melolo?videoId=${encodeURIComponent(videoId)}`,
+            { cache: 'force-cache' }
+          );
+          if (!response.ok) {
+            setResolvedUrl('');
+            return;
+          }
+          const payload = await response.json();
+          const realUrl = pickStreamUrl(payload);
+          if (!realUrl) {
+            setResolvedUrl('');
+            return;
+          }
+          resolvedUrlCacheRef.current.set(currentEpisode, realUrl);
+          if (isActive) setResolvedUrl(realUrl);
+          return;
+        } catch {
+          if (isActive) setResolvedUrl('');
+          return;
+        } finally {
+          if (isActive) setIsResolving(false);
+        }
+        return;
+      }
+
+      if (provider === 'dramanova') {
+        const selectedStream = streamMap.get(currentEpisode);
+        const fileId = selectedStream?.providerVideoId;
+        if (!fileId) {
+          setResolvedUrl('');
+          return;
+        }
+
+        setIsResolving(true);
+        try {
+          const response = await fetch(
+            `/api/player/dramanova?fileId=${encodeURIComponent(fileId)}`,
             { cache: 'force-cache' }
           );
           if (!response.ok) {
@@ -250,13 +287,10 @@ export function WatchClient({
   }, [currentEpisode, streamMap, provider, providerBookId, showError]);
 
   const handleEpisodeChange = (ep: number) => {
+    shouldAutoplayOnSourceChangeRef.current = true;
     setCurrentEpisode(ep);
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
-      // Auto-play video when episode changes
-      videoRef.current.play().catch(() => {
-        // Silently fail if autoplay is blocked
-      });
     }
   };
 
@@ -315,12 +349,23 @@ export function WatchClient({
           controlsList="nodownload"
           poster={drama.coverWap}
           key={`${currentEpisode}-${resolvedUrl}`}
+          onLoadedMetadata={() => {
+            if (!shouldAutoplayOnSourceChangeRef.current || !videoRef.current) return;
+            videoRef.current.play().catch(() => {
+              // Silently fail if autoplay is blocked
+            });
+            shouldAutoplayOnSourceChangeRef.current = false;
+          }}
           onClick={(e) => {
-            // Prevent default toggle play/pause on click - keep video playing
             e.preventDefault();
-            if (videoRef.current?.paused) {
-              videoRef.current.play().catch(() => {});
+            if (!videoRef.current) return;
+            if (videoRef.current.paused) {
+              videoRef.current.play().catch(() => {
+                // Silently fail if autoplay is blocked
+              });
+              return;
             }
+            videoRef.current.pause();
           }}
         >
           {resolvedUrl ? <source src={resolvedUrl} type={sourceType} /> : null}
@@ -376,7 +421,7 @@ export function WatchClient({
                       }}
                       className={`py-2 px-1 rounded text-sm font-semibold transition-colors ${
                         currentEpisode === ep
-                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                          ? 'bg-linear-to-r from-violet-600 to-indigo-600 text-white'
                           : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                       }`}
                     >

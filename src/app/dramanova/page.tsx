@@ -14,11 +14,12 @@ async function HomeSection() {
     <Section title="Drama Terbaru">
       {dramas.slice(0, 18).map((drama: any, idx: number) => (
         <DramaCard
-          key={`${drama.id || idx}`}
-          id={drama.id || ''}
+          key={`${drama.dramaId || drama.id || idx}`}
+          id={drama.dramaId || drama.id || ''}
           title={drama.title || drama.bookName || 'Unknown'}
-          image={drama.cover || drama.coverWap || '/placeholder.svg'}
-          episodes={drama.subtitle ? (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) : 0}
+          image={drama.posterImgUrl || drama.posterImg || drama.cover || drama.coverWap || '/placeholder.svg'}
+          episodes={drama.totalEpisodes || (drama.subtitle ? (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) : 0)}
+          views={drama.viewCount}
           type="dramanova"
         />
       ))}

@@ -38,7 +38,7 @@ export function Navigation() {
   return (
     <div className="w-full">
       <Select value={activeValue} onValueChange={handleProviderChange}>
-        <SelectTrigger className="w-full bg-gradient-to-r from-pink-500 to-purple-600 border-0 text-white font-semibold hover:opacity-90">
+        <SelectTrigger className="w-full bg-linear-to-r from-violet-600 to-indigo-600 border-0 text-white font-semibold hover:opacity-90">
           <SelectValue placeholder="Select Provider" />
         </SelectTrigger>
         <SelectContent>

@@ -89,7 +89,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-900 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-linear-to-r from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-xl">▶</span>
             </div>
             <span className="text-white font-bold text-lg hidden sm:inline">{appName}</span>

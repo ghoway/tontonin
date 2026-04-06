@@ -121,7 +121,20 @@ function asArray(payload: unknown): any[] {
   if (!payload || typeof payload !== 'object') return [];
 
   const obj = payload as Record<string, unknown>;
-  const candidateKeys = ['data', 'result', 'results', 'list', 'lists', 'items', 'dramas', 'episodes', 'books', 'cell'];
+  const candidateKeys = [
+    'data',
+    'result',
+    'results',
+    'list',
+    'lists',
+    'items',
+    'dramas',
+    'episodes',
+    'books',
+    'cell',
+    'rows',
+    'contentInfos',
+  ];
   for (const key of candidateKeys) {
     const value = obj[key];
     if (Array.isArray(value)) return value;
@@ -199,11 +212,17 @@ export async function getReelShortEpisode(bookId: string, episodeNumber: number)
 
 // ShortMax APIs
 export async function getShortMaxForYou(page?: number) {
-  return apiFetch(`/api/shortmax/foryou${page ? `?page=${page}` : ''}`);
+  const result = await apiFetch(`/api/shortmax/foryou${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getShortMaxLatest() {
-  return apiFetch('/api/shortmax/latest');
+  const result = await apiFetch('/api/shortmax/latest');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getShortMaxSearch(query: string) {
@@ -220,7 +239,10 @@ export async function getShortMaxAllEpisode(shortPlayId: string) {
 
 // NetShort APIs
 export async function getNetShortForYou(page?: number) {
-  return apiFetch(`/api/netshort/foryou${page ? `?page=${page}` : ''}`);
+  const result = await apiFetch(`/api/netshort/foryou${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getNetShortSearch(query: string) {
@@ -279,20 +301,33 @@ export async function getMeloloStream(videoId: string) {
 
 // FreeReels APIs
 export async function getFreeReelsForYou(offset?: number) {
-  return apiFetch(`/api/freereels/foryou${offset ? `?offset=${offset}` : ''}`);
+  const result = await apiFetch(`/api/freereels/foryou${offset ? `?offset=${offset}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getFreeReelsHomepage() {
-  return apiFetch('/api/freereels/homepage');
+  const result = await apiFetch('/api/freereels/homepage');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getFreeReelsSearch(query: string) {
   return apiFetch(`/api/freereels/search?query=${encodeURIComponent(query)}`);
 }
 
+export async function getFreeReelsDetailAndAllEpisode(key: string) {
+  return apiFetch(`/api/freereels/detailAndAllEpisode?key=${encodeURIComponent(key)}`);
+}
+
 // DramaNova APIs
 export async function getDramaNovaHome(page?: number) {
-  return apiFetch(`/api/dramanova/home${page ? `?page=${page}` : ''}`);
+  const result = await apiFetch(`/api/dramanova/home${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
 }
 
 export async function getDramaNovaSearch(query: string) {
@@ -300,7 +335,11 @@ export async function getDramaNovaSearch(query: string) {
 }
 
 export async function getDramaNovaDetail(id: string) {
-  return apiFetch(`/api/dramanova/detail?id=${id}`);
+  const byDramaId = await apiFetch(`/api/dramanova/detail?dramaId=${encodeURIComponent(id)}`);
+  if (byDramaId) return byDramaId;
+
+  // Backward-compatible fallback for deployments still expecting `id`.
+  return apiFetch(`/api/dramanova/detail?id=${encodeURIComponent(id)}`);
 }
 
 export async function getDramaNovaGetVideo(fileId: string) {

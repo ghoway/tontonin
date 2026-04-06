@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Header } from "@/components/Header";
 import { ErrorProvider } from "@/components/ErrorModal";
+import { TopNavigation } from "@/components/TopNavigation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "Nontonin",
-  description: "Platform streaming drama, film, dan anime gratis tanpa login",
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Platform streaming drama, film, dan anime gratis tanpa login",
+  keywords: process.env.NEXT_PUBLIC_APP_KEYWORDS?.split(", ") || ["drama", "streaming", "nonton", "tonton"],
 };
 
 export default function RootLayout({
@@ -32,7 +33,7 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-black text-white">
         <ErrorProvider>
-          <Header />
+          <TopNavigation />
           <main className="flex-1">{children}</main>
         </ErrorProvider>
       </body>

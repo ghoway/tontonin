@@ -14,12 +14,12 @@ async function ForYouSection() {
     <Section title="Untuk Kamu">
       {dramas.slice(0, 12).map((drama: any, idx: number) => (
         <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.svg'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
+          key={`${drama.key || drama.bookId || idx}`}
+          id={drama.key || drama.bookId || ''}
+          title={drama.title || drama.bookName || 'Unknown'}
+          image={drama.cover || drama.coverWap || '/placeholder.svg'}
+          episodes={drama.episode_count || drama.chapterCount}
+          views={drama.view_count || drama.playCount}
           type="freereels"
         />
       ))}
@@ -35,12 +35,12 @@ async function HomepageSection() {
     <Section title="Pilihan Terbaik">
       {dramas.slice(0, 18).map((drama: any, idx: number) => (
         <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-          image={drama.coverWap || '/placeholder.svg'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
+          key={`${drama.key || drama.bookId || idx}`}
+          id={drama.key || drama.bookId || ''}
+          title={drama.title || drama.bookName || 'Unknown'}
+          image={drama.cover || drama.coverWap || '/placeholder.svg'}
+          episodes={drama.episode_count || drama.chapterCount}
+          views={drama.view_count || drama.playCount}
           type="freereels"
         />
       ))}

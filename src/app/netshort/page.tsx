@@ -14,12 +14,11 @@ async function ForYouSection() {
     <Section title="Untuk Kamu">
       {dramas.slice(0, 18).map((drama: any, idx: number) => (
         <DramaCard
-          key={`${drama.bookId || idx}`}
-          id={drama.bookId || ''}
-          title={drama.bookName || 'Unknown'}
-           image={drama.coverWap || '/placeholder.svg'}
-          episodes={drama.chapterCount}
-          views={drama.playCount}
+          key={`${drama.shortPlayId || drama.bookId || idx}`}
+          id={drama.shortPlayId || drama.bookId || ''}
+          title={drama.shortPlayName || drama.bookName || 'Unknown'}
+          image={drama.shortPlayCover || drama.coverWap || '/placeholder.svg'}
+          views={drama.heatScoreShow || drama.playCount}
           type="netshort"
         />
       ))}

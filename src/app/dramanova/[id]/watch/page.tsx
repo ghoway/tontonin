@@ -37,9 +37,9 @@ async function WatchContent({ id, episode }: { id: string; episode?: string }) {
     streams = drama.subtitle
       .map((sub: any, index: number) => ({
         episode: index + 1,
-        streamUrl: sub.fileId ? `/api/dramanova/getvideo?fileId=${sub.fileId}` : undefined,
+        providerVideoId: sub.fileId ? String(sub.fileId) : undefined,
       }))
-      .filter((s: any) => s.streamUrl);
+      .filter((s: any) => s.providerVideoId);
   }
 
   const episodeButtons = Array.from({ length: episodeCount }, (_, i) => i + 1);
@@ -60,6 +60,7 @@ async function WatchContent({ id, episode }: { id: string; episode?: string }) {
         streams={streams}
         initialEpisode={episode || '1'}
         backHref={`/dramanova/${id}`}
+        provider="dramanova"
       />
     </>
   );

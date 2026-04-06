@@ -69,12 +69,12 @@ export default async function DramaBoxDetailPage({
                 )}
                 {drama.tags && drama.tags.length > 0 && (
                   <div className="col-span-2">
-                    <p className="text-zinc-400 text-sm mb-2">Genre</p>
+                    <p className="text-sm mb-2 font-semibold bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Genre</p>
                     <div className="flex flex-wrap gap-2">
                       {drama.tags.slice(0, 4).map((tag: string, idx: number) => (
                         <span
                           key={idx}
-                          className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full"
+                          className="bg-linear-to-r from-violet-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-full"
                         >
                           {tag}
                         </span>
@@ -88,7 +88,7 @@ export default async function DramaBoxDetailPage({
             <Link
               href={`/dramabox/${bookId}/watch`}
               prefetch={false}
-              className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center"
+              className="w-full block bg-linear-to-r from-violet-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity text-center"
             >
               ▶ Mulai Tonton
             </Link>

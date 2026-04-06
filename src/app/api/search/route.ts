@@ -41,7 +41,7 @@ function toList(payload: unknown): any[] {
   if (Array.isArray(payload)) return payload;
   if (!payload || typeof payload !== 'object') return [];
   const obj = payload as Record<string, unknown>;
-  for (const key of ['data', 'result', 'results', 'list', 'lists', 'items', 'books', 'cell']) {
+  for (const key of ['data', 'result', 'results', 'list', 'lists', 'items', 'books', 'cell', 'rows', 'contentInfos']) {
     const val = obj[key];
     if (Array.isArray(val)) return val;
     if (val && typeof val === 'object') {
@@ -72,7 +72,7 @@ function normalize(provider: Provider, items: any[]) {
     const id =
       provider === 'melolo'
         ? pickStringDeep(item, ['book_id', 'bookId', 'series_id_str', 'seriesId']) || String(idx)
-        : pickStringDeep(item, ['bookId', 'book_id', 'shortPlayId', 'id', 'bookid']) || String(idx);
+        : pickStringDeep(item, ['bookId', 'book_id', 'shortPlayId', 'id', 'bookid', 'key', 'dramaId']) || String(idx);
     const title =
       provider === 'melolo'
         ? pickStringDeep(item, ['book_name', 'bookName', 'series_title', 'title', 'name']) || 'Unknown'
