@@ -53,10 +53,6 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
 
-        <Link href="/reelshort" prefetch={false} className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8">
-          ← Kembali
-        </Link>
-
         <div className="mt-8 grid md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
             <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">

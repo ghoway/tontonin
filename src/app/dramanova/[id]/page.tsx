@@ -24,7 +24,10 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
+  const detailRoot = (detailData && typeof detailData === 'object') ? (detailData as Record<string, any>) : {};
+  const drama =
+    (detailRoot.data && typeof detailRoot.data === 'object' ? detailRoot.data : null) ||
+    (Array.isArray(detailData) ? detailData[0] : detailData);
 
   if (!drama) {
     return (
@@ -42,33 +45,37 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const title = drama.title || drama.bookName || 'Unknown';
-  const poster = drama.cover || drama.coverWap || drama.poster || '';
-  const synopsis = drama.description || drama.introduction || drama.synopsis || 'No synopsis available';
-  const genres = drama.genres || drama.tags || [];
-  const episodeCount = drama.subtitle ? (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) : 0;
+  const title = drama.title || drama.name || drama.bookName || 'Unknown';
+  const poster = drama.posterImg || drama.posterImgUrl || drama.cover || drama.coverWap || drama.poster || '';
+  const hasPoster = typeof poster === 'string' && poster.trim().length > 0;
+  const synopsis = drama.synopsis || drama.description || drama.introduction || 'No synopsis available';
+  const genres = drama.categoryNames || drama.genres || drama.tags || [];
+  const episodeCount = Number(
+    drama.totalEpisodes ||
+      (Array.isArray(drama.episodes) ? drama.episodes.length : 0) ||
+      (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) ||
+      0
+  );
 
   return (
     <div className="bg-black text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
 
-        <Link href="/dramanova" prefetch={false} className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8">
-          ← Kembali
-        </Link>
-
-        <div className="mt-8 grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-1">
-            <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
-              <img
-                src={poster || '/placeholder.svg'}
-                alt={title}
-                className="w-full h-auto object-cover"
-              />
+        <div className={`mt-8 grid ${hasPoster ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-8`}>
+          {hasPoster && (
+            <div className="md:col-span-1">
+              <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
+                <img
+                  src={poster}
+                  alt={title}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="md:col-span-2">
+          <div className={hasPoster ? 'md:col-span-2' : 'md:col-span-1'}>
             <h1 className="text-4xl font-bold text-white mb-4">{title}</h1>
 
             <div className="space-y-4 mb-6">
@@ -80,13 +87,13 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                {episodeCount && (
+                {episodeCount > 0 && (
                   <div>
                     <p className="text-zinc-400 text-sm">Total Episode</p>
                     <p className="text-white text-xl font-semibold">{episodeCount}</p>
                   </div>
                 )}
-                {genres && genres.length > 0 && (
+                {Array.isArray(genres) && genres.length > 0 && (
                   <div className="col-span-2">
                     <p className="text-sm mb-2 font-semibold bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">Genre</p>
                     <div className="flex flex-wrap gap-2">

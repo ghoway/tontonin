@@ -65,7 +65,7 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
     );
   }
 
-  const title = drama.title || drama.bookName || 'Unknown';
+  const title = drama.name || drama.title || drama.bookName || 'Unknown';
   const poster = drama.cover || drama.coverWap || drama.poster || drama.image || '';
   const hasPoster = typeof poster === 'string' && poster.trim().length > 0;
   const synopsis = drama.desc || drama.introduction || drama.description || drama.synopsis || 'No synopsis available';
