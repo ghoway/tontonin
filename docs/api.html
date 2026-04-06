@@ -1,0 +1,1499 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" type="image/x-icon" href="https://akmweb.youngjoygame.com/web/SΛNSΞKΛI/image/37aced000cd5045241b5f0a8314a6835.ico">
+
+    <!-- SEO Dasar -->
+    <title>Sansekai API Documentation</title>
+    <meta name="description" content="Sansekai API - Sebuah layanan API sederhana yang dibuat untuk tujuan pembelajaran.">
+    <meta name="keywords" content="Sansekai API, API Anime, Streaming Anime API, Sansekai, API Dracin, API Drama China, API DramaBox, DramaBox Github, DramaBox API, Dramabox API Github, API DramaBox Github, komik API, manhua API, manhwa API">
+    <meta name="author" content="Sansekai">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://api.sansekai.my.id/" />
+
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <link rel="shortcut icon" href="https://fastly.jsdelivr.net/npm/swagger-ui-dist@5/favicon-32x32.png" />
+    
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+
+        /* Kustomisasi sedikit agar lebih modern */
+        .swagger-ui .topbar {
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" charset="UTF-8"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+    <script>
+        window.onload = function() {
+            // Konfigurasi Spesifikasi OpenAPI
+            const spec = {
+                openapi: "3.0.0",
+                info: {
+                    title: "SΛNSΞKΛI API Documentation",
+                    description: `Selamat datang di dokumentasi Sansekai API.<br>Layanan Rest API gratis yang dapat kamu gunakan.<br><b>Note: API ini memiliki rate limit request 50/menit.</b>
+                    <br><br>Jika anda tertarik untuk memiliki salah satu source code dari API ini? Silakan klik link pembelian: [Beli Source Code](https://lynk.id/sansekai).
+                    <br><br>Webite nonton dracin gratis no login dan no iklan: [https://drama.sansekai.my.id](https://drama.sansekai.my.id)`,
+                    version: "1.0.0",
+                },
+                servers: [
+                    {
+                        url: "https://api.sansekai.my.id/api",
+                        description: "Production Server"
+                    },
+                    {
+                        url: "http://localhost:3000/api",
+                        description: "Local Server"
+                    }
+                ],
+                paths: {
+                    "/dramabox/foryou": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "For You (Untukmu)",
+                            description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman, default 1",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/vip": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Halaman VIP",
+                            description: "Mengambil daftar drama di halaman VIP.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/dubindo": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Ambil list drama dub indo",
+                            description: `Mengambil list drama dub indo dari kategori terpopuler atau terbaru`,
+                            parameters: [
+                                {
+                                    name: "classify",
+                                    in: "query",
+                                    required: true,
+                                    description: `Mengambil list drama dub indo.
+<br>Classify = <b>terpopuler</b> atau <b>terbaru</b>`,
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman.",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil list drama dub indo" }
+                            }
+                        }
+                    },
+                    "/dramabox/randomdrama": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Random Drama Video",
+                            description: "Mengambil video drama secara acak (For You Versi Video).",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/latest": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Drama Terbaru",
+                            description: "Mengambil daftar drama yang baru dirilis.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/trending": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Trending Drama",
+                            description: "Mengambil daftar drama yang sedang populer.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/populersearch": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Pencarian Populer",
+                            description: "Mengambil daftar kata kunci pencarian yang paling banyak dicari.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramabox/search": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Cari Drama",
+                            description: "Mencari drama berdasarkan judul atau kueri tertentu.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: pewaris)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mencari data" }
+                            }
+                        }
+                    },
+                    "/dramabox/detail": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Ambil Detail Drama",
+                            description: `Mengambil detail drama dari bookId.`,
+                            parameters: [
+                                {
+                                    name: "bookId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 41000116666)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil detail drama" }
+                            }
+                        }
+                    },
+                    "/dramabox/allepisode": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Ambil Semua Episode",
+                            description: `Mengambil link streaming untuk seluruh episode dari sebuah drama.
+                            <br><b>NOTE: Proses ini membutuhkan waktu tergantung jumlah episode.</b>`,
+                            parameters: [
+                                {
+                                    name: "bookId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 41000116666)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil daftar episode" }
+                            }
+                        }
+                    },
+                    "/dramabox/decrypt": {
+                        get: {
+                            tags: ["DramaBox"],
+                            summary: "Decrypt URL Video",
+                            description: `Ini gunanya untuk mengambil link streaming yang asli yang sudah didecrypt karena result link yang di dapat dari endpoint /dramabox/allepisode itu sudah diencrypt.
+                            <br><ur><b>NOTE: Linknya streaming video dramabox didapat dari endpoint /dramabox/allepisode</b>`,
+                            parameters: [
+                                {
+                                    name: "url",
+                                    in: "query",
+                                    required: true,
+                                    description: "Link streaming video dramabox yang sudah diencrypt (contoh: https://hwztakavideo.dramaboxdb.com/xxxx/xxxx/xxxx.encrypt.mp4?etavirp_nuyila=1)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil daftar episode" }
+                            }
+                        }
+                    },
+                    // --- Reelshort Routes ---
+                    "/reelshort/foryou": {
+                        get: {
+                            tags: ["ReelShort"],
+                            summary: "For You (Untukmu)",
+                            description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman, default 1",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/reelshort/homepage": {
+                        get: {
+                            tags: ["ReelShort"],
+                            summary: "Halaman Homepage",
+                            description: "Mengambil daftar drama di halaman homepage.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/reelshort/search": {
+                        get: {
+                            tags: ["ReelShort"],
+                            summary: "Halaman Pencarian Drama",
+                            description: "Mengambil daftar drama yang sesuai dengan pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: pewaris)",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman, default 1",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/reelshort/detail": {
+                        get: {
+                            tags: ["ReelShort"],
+                            summary: "Halaman Detail Drama",
+                            description: "Mengambil detail drama dari bookId.",
+                            parameters: [
+                                {
+                                    name: "bookId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 695f4e2f97c459a97700cc47)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil detail drama" }
+                            }
+                        }
+                    },
+                    "/reelshort/episode": {
+                        get: {
+                            tags: ["ReelShort"],
+                            summary: "Ambil stream url episode drama",
+                            description: "Mengambil stream url episode drama dari bookId dan episodeNumber.",
+                            parameters: [
+                                {
+                                    name: "bookId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 695f4e2f97c459a97700cc47)",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "episodeNumber",
+                                    in: "query",
+                                    required: true,
+                                    description: "Nomor episode (contoh: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil detail episode" }
+                            }
+                        }
+                    },
+                    // "/reelshort/allepisode": {
+                    //     get: {
+                    //         tags: ["ReelShort"],
+                    //         summary: "Ambil semua stream url episode drama",
+                    //         description: `Mengambil link streaming untuk seluruh episode dari sebuah drama.
+                    //         <br><b>NOTE: Proses ini membutuhkan waktu tergantung jumlah episode.</b>`,
+                    //         parameters: [
+                    //             {
+                    //                 name: "bookId",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "ID unik drama (contoh: 695f4e2f97c459a97700cc47)",
+                    //                 schema: { type: "string" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil daftar episode" }
+                    //         }
+                    //     }
+                    // },
+                    // --- ShortMax Routes ---
+                    "/shortmax/foryou": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "For You (Untukmu)",
+                            description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman, default 1",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/shortmax/latest": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Drama Terbaru",
+                            description: "Mengambil daftar drama terbaru.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/shortmax/rekomendasi": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Drama Rekomendasi",
+                            description: "Mengambil daftar drama rekomendasi.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/shortmax/vip": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Drama VIP",
+                            description: "Mengambil daftar drama VIP.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/shortmax/search": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Pencarian Drama",
+                            description: "Mencari daftar drama menggunakan kata kunci.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: cinta)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/shortmax/detail": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Detail Drama",
+                            description: "Mengambil detail dari sebuah drama berdasarkan shortPlayId.",
+                            parameters: [
+                                {
+                                    name: "shortPlayId",
+                                    in: "query",
+                                    required: true,
+                                    description: "shortPlayId drama (contoh: 2132)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/shortmax/episode": {
+                    //     get: {
+                    //         tags: ["ShortMax"],
+                    //         summary: "Detail Episode Drama",
+                    //         description: "Mengambil link streaming untuk satu episode drama berdasarkan shortPlayId dan episodeNumber.",
+                    //         parameters: [
+                    //             {
+                    //                 name: "shortPlayId",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "ID singkat drama (contoh: 2132)",
+                    //                 schema: { type: "string" }
+                    //             },
+                    //             {
+                    //                 name: "episodeNumber",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "Nomor episode yang ingin diambil (contoh: 1)",
+                    //                 schema: { type: "integer" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    "/shortmax/allepisode": {
+                        get: {
+                            tags: ["ShortMax"],
+                            summary: "Semua Episode Drama",
+                            description: `Mengambil daftar semua episode drama berdasarkan shortPlayId.
+                            <br><br><b>NOTE: Untuk contoh player video Shortmax agar video bisa jalan bisa cek contohnya di <a href="https://raw.githubusercontent.com/Sansekai/SekaiDrama/refs/heads/main/src/app/api/shortmax/hls/route.ts">Sini (klik)</a></b>`,
+                            parameters: [
+                                {
+                                    name: "shortPlayId",
+                                    in: "query",
+                                    required: true,
+                                    description: "shortPlayId drama (contoh: 2132)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- Netshort Routes ---
+                    "/netshort/foryou": {
+                        get: {
+                            tags: ["NetShort"],
+                            summary: "For You (Untukmu)",
+                            description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman.",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/netshort/theaters": {
+                        get: {
+                            tags: ["NetShort"],
+                            summary: "Halaman Theater",
+                            description: "Mengambil daftar drama di halaman theater.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/netshort/search": {
+                        get: {
+                            tags: ["NetShort"],
+                            summary: "Cari Drama",
+                            description: "Mengambil daftar drama yang cocok dengan query pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: pewaris)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }   
+                        }
+                    },
+                    "/netshort/allepisode": {
+                        get: {
+                            tags: ["NetShort"],
+                            summary: "Semua Episode Drama",
+                            description: "Mengambil semua link stream episode drama.",
+                            parameters: [
+                                {
+                                    name: "shortPlayId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 1894598206267256834)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- Melolo Routes ---
+                    "/melolo/foryou": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Drama For You",
+                            description: "Mengambil daftar drama untuk Anda.",
+                            parameters: [
+                                {
+                                    name: "offset",
+                                    in: "query",
+                                    required: false,
+                                    description: "Offset untuk pagination, default 20",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/melolo/latest": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Drama Terbaru",
+                            description: "Mengambil daftar drama terbaru.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/melolo/trending": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Drama Trending",
+                            description: "Mengambil daftar drama trending.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/melolo/search": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Cari Drama",
+                            description: "Mengambil daftar drama yang cocok dengan query pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: pewaris)",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "limit",
+                                    in: "query",
+                                    required: false,
+                                    description: "Jumlah data yang akan diambil (default: 10)",
+                                    schema: { type: "integer" }
+                                },
+                                {
+                                    name: "offset",
+                                    in: "query",
+                                    required: false,
+                                    description: "Offset data yang akan diambil (default: 0)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/melolo/detail": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Detail Drama",
+                            description: "Mengambil detail drama.",
+                            parameters: [
+                                {
+                                    name: "bookId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik drama (contoh: 7583531888644459525)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/melolo/stream": {
+                        get: {
+                            tags: ["Melolo"],
+                            summary: "Stream Drama",
+                            description: "Mengambil stream drama.",
+                            parameters: [
+                                {
+                                    name: "videoId",
+                                    in: "query",
+                                    required: true,
+                                    description: `ID unik drama (contoh: 7583564321033030661)
+                                    <br>
+                                    <b>Perlu diisi dengan videoId yang didapatkan dari endpoint /melolo/detail properties "vid"</b>`,
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- FlickReels ---
+                    // "/flickreels/foryou": {
+                    //     get: {
+                    //         tags: ["FlickReels"],
+                    //         summary: "Rekomendasi untukmu",
+                    //         description: "Mengambil daftar drama rekomendasi untukmu.",
+                    //         parameters: [
+                    //             {
+                    //                 name: "page",
+                    //                 in: "query",
+                    //                 required: false,
+                    //                 description: "Nomor halaman. (default: 1)",
+                    //                 schema: { type: "integer" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    // "/flickreels/latest": {
+                    //     get: {
+                    //         tags: ["FlickReels"],
+                    //         summary: "Drama Terbaru",
+                    //         description: "Mengambil daftar drama terbaru.",
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    // "/flickreels/hotrank": {
+                    //     get: {
+                    //         tags: ["FlickReels"],
+                    //         summary: "List kategori rank drama",
+                    //         description: "Mengambil daftar kategori rank drama.",
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    // "/flickreels/search": {
+                    //     get: {
+                    //         tags: ["FlickReels"],
+                    //         summary: "Cari Drama",
+                    //         description: "Mengambil daftar drama yang dicari.",
+                    //         parameters: [
+                    //             {
+                    //                 name: "query",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "Query pencarian (contoh: pewaris)",
+                    //                 schema: { type: "string" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    // "/flickreels/detailAndAllEpisode": {
+                    //     get: {
+                    //         tags: ["FlickReels"],
+                    //         summary: "Detail Drama dan Semua Episode",
+                    //         description: "Mengambil detail drama dan semua episode.",
+                    //         parameters: [
+                    //             {
+                    //                 name: "id",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "ID drama (contoh: 4885)",
+                    //                 schema: { type: "string" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    // "/freereels/foryou": {
+                    //     get: {
+                    //         tags: ["FreeReels"],
+                    //         summary: "For You (Untukmu)",
+                    //         description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                    //         responses: {
+                    //             200: { description: "Berhasil mengambil data" }
+                    //         }
+                    //     }
+                    // },
+                    "/freereels/foryou": {
+                        get: {
+                            tags: ["FreeReels"],
+                            summary: "For You (Untukmu)",
+                            description: "Mengambil daftar drama rekomendasi untuk pengguna.",
+                            parameters: [
+                                {
+                                    name: "offset",
+                                    in: "query",
+                                    required: false,
+                                    description: "Offset untuk pagination. (default: 20)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/freereels/homepage": {
+                        get: {
+                            tags: ["FreeReels"],
+                            summary: "Halaman Utama",
+                            description: "Mengambil daftar drama di halaman utama.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/freereels/animepage": {
+                        get: {
+                            tags: ["FreeReels"],
+                            summary: "Halaman Anime",
+                            description: "Mengambil daftar anime di halaman anime.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/freereels/search": {
+                        get: {
+                            tags: ["FreeReels"],
+                            summary: "Halaman Pencarian Drama",
+                            description: "Mengambil daftar drama yang sesuai dengan pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: pewaris)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/freereels/detailAndAllEpisode": {
+                        get: {
+                            tags: ["FreeReels"],
+                            summary: "Detail Drama dan Semua Episode",
+                            description: "Mengambil detail drama dan semua episode.",
+                            parameters: [
+                                {
+                                    name: "key",
+                                    in: "query",
+                                    required: true,
+                                    description: "KEY drama (contoh: eNFDnztZRb)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- DramaNova Routes ---
+                    "/dramanova/home": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Halaman Utama",
+                            description: "Mengambil konten halaman utama DramaNova.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman. (default: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramanova/drama18": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Drama 18+",
+                            description: "Mengambil konten drama 18+.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman. (default: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramanova/komik": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Komik",
+                            description: "Mengambil konten komik.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Nomor halaman. (default: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramanova/search": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Pencarian",
+                            description: "Mencari konten berdasarkan judul.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Judul yang ingin dicari.",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramanova/detail": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Detail Konten",
+                            description: "Mengambil detail konten, list link subtitle dan list file ID berdasarkan ID Drama.",
+                            parameters: [
+                                {
+                                    name: "dramaId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID Drama (Contoh: 1993145796638466048).",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/dramanova/getvideo": {
+                        get: {
+                            tags: ["DramaNova"],
+                            summary: "Video Konten",
+                            description: "Mengambil video konten berdasarkan File ID.",
+                            parameters: [
+                                {
+                                    name: "fileId",
+                                    in: "query",
+                                    required: true,
+                                    description: `File ID drama
+                                    <br><b>File ID bisa didapatkan dari endpoint /dramanova/detail</b>`,
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/viu/home": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Halaman Utama",
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // "/viu/search": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Cari Konten",
+                    //         parameters: [
+                    //             { name: "keyword", in: "query", required: true, description: "Kata kunci (contoh: cinta)", schema: { type: "string" } },
+                    //             { name: "page", in: "query", required: false, description: "Halaman (default: 1)", schema: { type: "integer" } }
+                    //         ],
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // "/viu/categories": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Daftar Kategori",
+                    //         description: "Mengambil daftar kategori konten.",
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // "/viu/series": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Series per Kategori",
+                    //         description: "Mengambil daftar series konten berdasarkan kategori. <code>category_id</code> dapat ditemukan di endpoint <code>/viu/categories</code>",
+                    //         parameters: [
+                    //             { name: "category_id", in: "query", required: true, schema: { type: "string" } }
+                    //         ],
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // "/viu/detail": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Detail Konten",
+                    //         description: "Mengambil detail produk.",
+                    //         parameters: [{ name: "product_id", in: "query", required: true, schema: { type: "string" } }],
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // "/viu/episodes": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Daftar Episode",
+                    //         description: "Mengambil daftar episode konten.",
+                    //         parameters: [
+                    //             { name: "product_id", in: "query", required: true, schema: { type: "string" } },
+                    //             { name: "series_id", in: "query", required: true, schema: { type: "string" } }
+                    //         ],
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // // "/viu/play": {
+                    // //     get: {
+                    // //         tags: ["Viu"], summary: "Get original stream URL",
+                    // //         description: `Mengambil URL stream asli.
+                    // //         <b>Original url tidak dapat diakses langsung, gunakan endpoint <code>/viu/generate-stream-url</code> untuk mendapatkan URL stream.</b>`,
+                    // //         parameters: [{ name: "ccs_product_id", description: "<code>ccs_product_id</code> dapat ditemukan di endpoint <code>/viu/episodes</code>", in: "query", required: true, schema: { type: "string" } }],
+                    // //         responses: { 200: { description: "Berhasil" } }
+                    // //     }
+                    // // },
+                    // "/viu/generate-stream-url": {
+                    //     get: {
+                    //         tags: ["Viu"], summary: "Generate Stream URL",
+                    //         description: "Menghasilkan URL direct-stream dan m3u8-stream.",
+                    //         parameters: [
+                    //             { name: "ccs_product_id", description: "<code>ccs_product_id</code> dapat ditemukan di endpoint <code>/viu/episodes</code>", in: "query", required: true, schema: { type: "string" } }
+                    //         ],
+                    //         responses: { 200: { description: "Berhasil" } }
+                    //     }
+                    // },
+                    // --- Anime Routes ---
+                    "/anime/latest": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Anime Terbaru",
+                            description: "Mengambil daftar anime update terbaru.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/anime/recommended": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Anime Rekomendasi",
+                            description: "Mengambil daftar anime rekomendasi.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Halaman yang akan diambil (default: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/anime/search": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Cari Anime",
+                            description: "Mengambil daftar anime yang cocok dengan query pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: one piece)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/anime/detail": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Detail Anime",
+                            description: "Mengambil detail anime.",
+                            parameters: [
+                                {
+                                    name: "urlId",
+                                    in: "query",
+                                    required: true,
+                                    description: "URL ID anime (contoh: one-piece-z-01)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/anime/movie": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Movie Anime",
+                            description: "Mengambil list movie anime.",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/anime/getvideo": {
+                        get: {
+                            tags: ["Anime"],
+                            summary: "Ambil Video Anime",
+                            description: "Mengambil link streaming video anime.",
+                            parameters: [
+                                {
+                                    name: "chapterUrlId",
+                                    in: "query",
+                                    required: true,
+                                    description: "URL ID chapter/episode anime diambil dari endpoint /anime/search array chapter[] properties url (contoh: al-150441-1135)",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "reso",
+                                    in: "query",
+                                    required: false,
+                                    description: "Resolusi video (default: 480p)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- Route Komik ---
+                    "/komik/recommended": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list komik rekomendasi",
+                            description: "Mengambil list komik rekomendasi.",
+                            parameters: [
+                                {
+                                    name: "type",
+                                    in: "query",
+                                    required: true,
+                                    description: "Tipe komik <b>manhwa, manhua, manga</b>",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/latest"
+                    "/komik/latest": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list komik terbaru",
+                            description: "Mengambil list komik terbaru.",
+                            parameters: [
+                                {
+                                    name: "type",
+                                    in: "query",
+                                    required: true,
+                                    description: "Tipe komik <b>project, mirror</b>",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/search"
+                    "/komik/search": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list komik pencarian",
+                            description: "Mengambil list komik pencarian.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Query pencarian komik",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/popular"
+                    "/komik/popular": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list komik populer",
+                            description: "Mengambil list komik populer.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Halaman komik",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/detail"
+                    "/komik/detail": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil detail komik",
+                            description: "Mengambil detail komik (contoh: badacf54-5e5e-4548-9470-7f533e88fc77).",
+                            parameters: [
+                                {
+                                    name: "manga_id",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID komik",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/chapterlist"
+                    "/komik/chapterlist": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list chapter komik",
+                            description: "Mengambil list chapter komik (contoh: badacf54-5e5e-4548-9470-7f533e88fc77).",
+                            parameters: [
+                                {
+                                    name: "manga_id",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID komik",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // "/komik/getimage"
+                    "/komik/getimage": {
+                        get: {
+                            tags: ["Komik"],
+                            summary: "Ambil list image komik",
+                            description: `Mengambil list image komik (contoh: ed3c22f1-7a1e-4561-819f-026752f7fe30).
+                            <br><b>'chapter_id' didapat dari endpoint /komik/chapterlist</b>`,
+                            parameters: [
+                                {
+                                    name: "chapter_id",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID chapter komik",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    // --- MovieBox Routes ---
+                    "/moviebox/homepage": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Halaman Utama",
+                            description: "Mengambil konten halaman utama MovieBox (Featured, Popular, dll).",
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/moviebox/trending": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Konten Trending",
+                            description: "Mengambil daftar film dan serial TV yang sedang trending.",
+                            parameters: [
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Halaman (default: 0)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil data" }
+                            }
+                        }
+                    },
+                    "/moviebox/search": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Cari Film/Serial",
+                            description: "Mencari film atau serial TV berdasarkan kata kunci.",
+                            parameters: [
+                                {
+                                    name: "query",
+                                    in: "query",
+                                    required: true,
+                                    description: "Kata kunci pencarian (contoh: spiderman)",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "page",
+                                    in: "query",
+                                    required: false,
+                                    description: "Halaman (default: 1)",
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mencari data" }
+                            }
+                        }
+                    },
+                    "/moviebox/detail": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Detail Film/Serial",
+                            description: "Mengambil informasi detail film atau serial TV.",
+                            parameters: [
+                                {
+                                    name: "subjectId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik film/serial (contoh: 8326926546585929784)",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil detail" }
+                            }
+                        }
+                    },
+                    "/moviebox/sources": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Ambil Link Download",
+                            description: `Mengambil link download untuk film atau episode serial TV.
+                            <br><br><b>Nanti url downloadnya dicopy lalu digunakan di endpoint /generate-link-stream-video</b>`,
+                            parameters: [
+                                {
+                                    name: "subjectId",
+                                    in: "query",
+                                    required: true,
+                                    description: "ID unik film/serial",
+                                    schema: { type: "string" }
+                                },
+                                {
+                                    name: "season",
+                                    in: "query",
+                                    required: false,
+                                    description: `Nomor season (default: 0 untuk film), kalau "subjectType": 2 (Series) maka masukkan season yang diinginkan.
+                                    <br>Untuk melihat list season, gunakan endpoint /moviebox/detail`,
+                                    schema: { type: "integer" }
+                                },
+                                {
+                                    name: "episode",
+                                    in: "query",
+                                    required: false,
+                                    description: `Nomor episode (default: 0 untuk film), kalau "subjectType": 2 (Series) maka masukkan episode yang diinginkan.
+                                    <br>Untuk melihat list episode, gunakan endpoint /moviebox/detail`,
+                                    schema: { type: "integer" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mengambil link download" }
+                            }
+                        }
+                    },
+                    // "/moviebox/auto-download": {
+                    //     get: {
+                    //         tags: ["MovieBox"],
+                    //         summary: "Generate Download URL",
+                    //         description: `Validasi URL dan generate link download yang siap digunakan.
+                    //         <br><b>Response akan berisi URL yang bisa di-copy dan dibuka di jendela browser baru untuk download.</b>`,
+                    //         parameters: [
+                    //             {
+                    //                 name: "url",
+                    //                 in: "query",
+                    //                 required: true,
+                    //                 description: "URL video dari endpoint /sources (paste langsung URL lengkap)",
+                    //                 schema: { type: "string" }
+                    //             }
+                    //         ],
+                    //         responses: {
+                    //             200: { description: "URL berhasil divalidasi, response berisi link download" }
+                    //         }
+                    //     }
+                    // },
+                    "/moviebox/generate-link-stream-video": {
+                        get: {
+                            tags: ["MovieBox"],
+                            summary: "Generate Download URL",
+                            description: `Validasi URL dan generate link download yang siap digunakan.
+                            <br><b>Response akan berisi URL yang bisa di-copy dan dibuka di jendela browser baru untuk download.</b>`,
+                            parameters: [
+                                {
+                                    name: "url",
+                                    in: "query",
+                                    required: true,
+                                    description: "Copy result URL dari endpoint /sources, lalu url tersebut gunakan di endpoint /generate-link-stream-video",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "URL berhasil divalidasi, response berisi link download" }
+                            }
+                        }
+                    },
+                    "/ai/chatgpt": {
+                        get: {
+                            tags: ["Artificial Intelligence (AI)"],
+                            summary: "ChatGPT (model gpt-4o-mini)",
+                            description: `ChatGPT AI (model gpt-4o-mini)`,
+                            parameters: [
+                                {
+                                    name: "prompt",
+                                    in: "query",
+                                    required: true,
+                                    description: "Masukkan pertanyaan kamu!",
+                                    schema: { type: "string" }
+                                }
+                            ],
+                            responses: {
+                                200: { description: "Berhasil mendapatkan response dari ChatGPT AI" }
+                            }
+                        }
+                    },
+                    // --- Uploader Routes ---
+                    "/uploader": {
+                        post: {
+                            tags: ["Uploader"],
+                            summary: "Upload File",
+                            description: "Upload file gambar, video, audio, atau PDF (Maksimal 20MB).",
+                            requestBody: {
+                                content: {
+                                    "multipart/form-data": {
+                                        schema: {
+                                            type: "object",
+                                            properties: {
+                                                file: {
+                                                    type: "string",
+                                                    format: "binary"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            responses: {
+                                200: { description: "Berhasil upload file" }
+                            }
+                        }
+                    },
+                }
+            };
+
+            // Inisialisasi Swagger UI
+            const ui = SwaggerUIBundle({
+                docExpansion: "none",
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "BaseLayout",
+                defaultModelsExpandDepth: -1
+            });
+
+            window.ui = ui;
+        };
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"e1da520acd1247b68e70d42f62d461a0","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

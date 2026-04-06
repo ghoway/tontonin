@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { WatchClient } from '@/components/WatchClient';
 import { LoadingSkeleton } from '@/components/GenericWatchPage';
@@ -94,31 +95,28 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
     .sort((a: any, b: any) => a.episode - b.episode);
 
   const chapterCount = drama.chapterCount || streams.length || 0;
+  const episodeButtons = Array.from({ length: chapterCount }, (_, i) => i + 1);
 
   return (
-    <div className="bg-black text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Navigation />
-        <div className="mt-8">
-          <WatchClient
-            drama={{
-              bookId: drama.bookId || bookId,
-              bookName: drama.bookName,
-              coverWap: drama.coverWap,
-              chapterCount,
-              introduction: drama.introduction,
-              tags: drama.tags,
-              playCount: String(drama.series_play_cnt || ''),
-            }}
-            streams={streams}
-            initialEpisode={episode || '1'}
-            backHref={`/melolo/${bookId}`}
-            provider="melolo"
-            providerBookId={bookId}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      {/* Video Player */}
+      <WatchClient
+        drama={{
+          bookId: drama.bookId || bookId,
+          bookName: drama.bookName,
+          coverWap: drama.coverWap,
+          chapterCount,
+          introduction: drama.introduction,
+          tags: drama.tags,
+          playCount: String(drama.series_play_cnt || ''),
+        }}
+        streams={streams}
+        initialEpisode={episode || '1'}
+        backHref={`/melolo/${bookId}`}
+        provider="melolo"
+        providerBookId={bookId}
+      />
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Navigation } from '@/components/Navigation';
+import Link from 'next/link';
 import { WatchClient } from '@/components/WatchClient';
 import { getDramaBoxAllEpisode, getDramaBoxDetail } from '@/lib/api';
 
@@ -152,7 +152,15 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
       }
     }
 
-    return <WatchClient drama={drama} streams={finalStreams} initialEpisode={episode || '1'} />;
+    const maxEpisode = drama.chapterCount || finalStreams.length || 0;
+    const episodeButtons = Array.from({ length: maxEpisode }, (_, i) => i + 1);
+
+    return (
+      <div>
+        {/* Video Player */}
+        <WatchClient drama={drama} streams={finalStreams} initialEpisode={episode || '1'} />
+      </div>
+    );
   } catch (error) {
     console.error('[WatchPage] Error:', error);
     return (
@@ -174,16 +182,10 @@ export default async function WatchPage({
   const { ep } = await searchParams;
 
   return (
-    <div className="bg-black text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Navigation />
-
-        <div className="mt-8">
-          <Suspense fallback={<LoadingSkeleton />}>
-            <WatchContent bookId={bookId} episode={ep} />
-          </Suspense>
-        </div>
-      </div>
+    <div className="bg-black text-white w-screen h-screen">
+      <Suspense fallback={<LoadingSkeleton />}>
+        <WatchContent bookId={bookId} episode={ep} />
+      </Suspense>
     </div>
   );
 }

@@ -82,13 +82,11 @@ export function WatchClient({
 }: WatchClientProps) {
   const { showError } = useError();
   const [currentEpisode, setCurrentEpisode] = useState(parseInt(initialEpisode));
-  const [selectedQuality, setSelectedQuality] = useState('1080p');
   const [resolvedUrl, setResolvedUrl] = useState<string>('');
   const [isResolving, setIsResolving] = useState(false);
+  const [showEpisodeList, setShowEpisodeList] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const resolvedUrlCacheRef = useRef<Map<number, string>>(new Map());
-
-  const qualities = ['1080p', '720p', '540p', '360p', '144p'];
   const maxEpisode = drama.chapterCount || streams.length || 0;
   const episodeButtons = useMemo(
     () => Array.from({ length: maxEpisode }, (_, i) => i + 1),
@@ -255,123 +253,156 @@ export function WatchClient({
     setCurrentEpisode(ep);
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
+      // Auto-play video when episode changes
+      videoRef.current.play().catch(() => {
+        // Silently fail if autoplay is blocked
+      });
     }
   };
 
+  // Auto-play to next episode when current episode ends
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    const handleVideoEnd = () => {
+      if (currentEpisode < maxEpisode) {
+        handleEpisodeChange(currentEpisode + 1);
+      }
+    };
+
+    // Use a small delay to ensure video is fully ready
+    const timer = setTimeout(() => {
+      videoElement.addEventListener('ended', handleVideoEnd);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      videoElement.removeEventListener('ended', handleVideoEnd);
+    };
+  }, [currentEpisode, maxEpisode, resolvedUrl]);
+
   return (
-    <div className="space-y-6">
-      {/* Back Button */}
-      <Link
-        href={backHref || `/dramabox/${drama.bookId}`}
-        prefetch={false}
-        className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-4"
-      >
-        ← Kembali
-      </Link>
+    <div className="relative w-screen h-screen bg-black overflow-hidden">
+      <div className="w-full h-full relative">
+        {/* Back Button */}
+        <Link
+          href={backHref || `/dramabox/${drama.bookId}`}
+          prefetch={false}
+          className="absolute top-4 left-4 z-20 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white text-lg transition-colors"
+        >
+          ←
+        </Link>
 
-      {/* Video Player Container */}
-      <div className="relative w-full bg-black rounded-lg overflow-hidden">
-        <div className="aspect-video bg-zinc-900 relative">
-          {/* Video Player */}
-          <video
-            ref={videoRef}
-            className="w-full h-full"
-            controls
-            playsInline
-            preload="metadata"
-            controlsList="nodownload"
-            poster={drama.coverWap}
-            key={`${currentEpisode}-${resolvedUrl}`}
+        {/* Right Controls */}
+        <div className="absolute top-4 right-4 z-20">
+          <button 
+            onClick={() => setShowEpisodeList(!showEpisodeList)}
+            className="w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors text-lg"
           >
-            {resolvedUrl ? <source src={resolvedUrl} type={sourceType} /> : null}
-            Your browser does not support the video tag.
-          </video>
+            ≡
+          </button>
+        </div>
 
-          {/* Quality Selector Overlay */}
-          <div className="absolute top-4 right-4 z-10">
-            <select
-              value={selectedQuality}
-              onChange={(e) => setSelectedQuality(e.target.value)}
-              className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold cursor-pointer text-sm"
+        {/* Video Player */}
+        <video
+          ref={videoRef}
+          className="w-full h-full"
+          controls
+          autoPlay
+          playsInline
+          preload="metadata"
+          controlsList="nodownload"
+          poster={drama.coverWap}
+          key={`${currentEpisode}-${resolvedUrl}`}
+          onClick={(e) => {
+            // Prevent default toggle play/pause on click - keep video playing
+            e.preventDefault();
+            if (videoRef.current?.paused) {
+              videoRef.current.play().catch(() => {});
+            }
+          }}
+        >
+          {resolvedUrl ? <source src={resolvedUrl} type={sourceType} /> : null}
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Bottom Episode Counter with Navigation */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex items-center gap-4 bg-black/60 px-4 py-2 rounded text-white text-sm font-semibold">
+            <button
+              onClick={() => {
+                if (currentEpisode > 1) handleEpisodeChange(currentEpisode - 1);
+              }}
+              disabled={currentEpisode <= 1}
+              className="hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {qualities.map((q) => (
-                <option key={q} value={q}>
-                  {q}
-                </option>
-              ))}
-            </select>
+              ‹
+            </button>
+            <span>Ep {currentEpisode} / {maxEpisode}</span>
+            <button
+              onClick={() => {
+                if (currentEpisode < maxEpisode) handleEpisodeChange(currentEpisode + 1);
+              }}
+              disabled={currentEpisode >= maxEpisode}
+              className="hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              ›
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Episode Info */}
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white">
-          {drama.bookName}
-        </h2>
-        <p className="text-zinc-400">
-          Episode {currentEpisode} dari {drama.chapterCount}
-        </p>
-        {isResolving && <p className="text-yellow-400 text-sm">⏳ Memuat video...</p>}
+        {/* Episode List Modal */}
+        {showEpisodeList && (
+          <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-zinc-900 rounded-lg max-w-md w-full max-h-96 flex flex-col">
+              <div className="px-4 py-3 border-b border-zinc-700 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white">Daftar Episode</h3>
+                <button 
+                  onClick={() => setShowEpisodeList(false)}
+                  className="text-white hover:text-zinc-300 text-xl"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-4">
+                <div className="grid grid-cols-5 gap-2">
+                  {episodeButtons.map((ep) => (
+                    <button
+                      key={ep}
+                      onClick={() => {
+                        handleEpisodeChange(ep);
+                        setShowEpisodeList(false);
+                      }}
+                      className={`py-2 px-1 rounded text-sm font-semibold transition-colors ${
+                        currentEpisode === ep
+                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                      }`}
+                    >
+                      {ep}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading/Error Indicators */}
+        {isResolving && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+            <p className="text-yellow-400 text-center">⏳ Memuat video...</p>
+          </div>
+        )}
         {!isResolving && !resolvedUrl && (
-          <p className="text-red-400 text-sm">
-            ❌ Video untuk episode ini belum tersedia.
-          </p>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+            <p className="text-red-400 text-center">
+              ❌ Video tidak tersedia
+            </p>
+          </div>
         )}
       </div>
-
-      {/* Episode List */}
-      <div className="space-y-3">
-        <h3 className="text-xl font-semibold text-white">Daftar Episode</h3>
-        <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-80 overflow-y-auto pr-2">
-          {episodeButtons.map((ep) => (
-            <button
-              key={ep}
-              onClick={() => handleEpisodeChange(ep)}
-              className={`
-                py-2 px-2 rounded font-semibold text-sm transition-colors
-                ${
-                  currentEpisode === ep
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                }
-              `}
-            >
-              {ep}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Synopsis */}
-      <div className="space-y-3 bg-zinc-900 p-4 rounded-lg">
-        <h3 className="text-xl font-semibold text-white">Sinopsis</h3>
-        <p className="text-zinc-300 leading-relaxed">{drama.introduction}</p>
-      </div>
-
-      {/* Tags/Genres */}
-      {drama.tags && drama.tags.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-xl font-semibold text-white">Genre</h3>
-          <div className="flex flex-wrap gap-2">
-            {drama.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-full transition-colors cursor-pointer"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Stats */}
-      {drama.playCount && (
-        <div className="space-y-2 text-zinc-400">
-          <p>👁 {drama.playCount} views</p>
-        </div>
-      )}
     </div>
   );
 }

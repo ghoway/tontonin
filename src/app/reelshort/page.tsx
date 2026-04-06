@@ -10,7 +10,7 @@ async function ForYouSection() {
   const data = await getReelShortForYou(1);
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="reelshort" initialVisible={18} loadStep={9} />;
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="reelshort" initialVisible={18} />;
 }
 
 async function SearchSection({ query }: { query: string }) {
@@ -20,7 +20,7 @@ async function SearchSection({ query }: { query: string }) {
   return (
     <>
       <div className="text-zinc-400 mb-4 ml-2">Hasil pencarian: "{query}"</div>
-      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="reelshort" initialVisible={18} loadStep={9} />
+      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="reelshort" initialVisible={18} />
     </>
   );
 }

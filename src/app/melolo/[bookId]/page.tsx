@@ -114,55 +114,59 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
 
-        <Link href="/melolo" prefetch={false} className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8">
-          ← Kembali
-        </Link>
-
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
-          {/* Poster */}
+        <div className="mt-8 grid md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <div className="aspect-video rounded-lg overflow-hidden bg-zinc-800 shrink-0">
-              {poster ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={poster} alt={title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                  <span className="text-3xl">📺</span>
-                </div>
-              )}
+            <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
+              <img
+                src={poster || '/placeholder.svg'}
+                alt={title}
+                className="w-full h-auto object-cover"
+              />
             </div>
           </div>
 
-          {/* Info */}
-          <div className="md:col-span-2 space-y-4">
-            <h1 className="text-4xl font-bold">{title}</h1>
+          <div className="md:col-span-2">
+            <h1 className="text-4xl font-bold text-white mb-4">{title}</h1>
 
-            <div className="space-y-2 text-zinc-300">
-              <p>
-                <span className="text-zinc-400">Episodes: </span>
-                {episodeCount}
-              </p>
+            <div className="space-y-4 mb-6">
+              {synopsis && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Sinopsis</h3>
+                  <p className="text-zinc-300 leading-relaxed">{synopsis}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                {episodeCount && (
+                  <div>
+                    <p className="text-zinc-400 text-sm">Total Episode</p>
+                    <p className="text-white text-xl font-semibold">{episodeCount}</p>
+                  </div>
+                )}
+                {genres && genres.length > 0 && (
+                  <div className="col-span-2">
+                    <p className="text-zinc-400 text-sm mb-2">Genre</p>
+                    <div className="flex flex-wrap gap-2">
+                      {genres.slice(0, 4).map((genre: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              {genres.map((genre: string, idx: number) => (
-                <span
-                  key={idx}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-full"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-
-            <p className="text-zinc-300 leading-relaxed">{synopsis}</p>
 
             <Link
               href={`/melolo/${bookId}/watch`}
               prefetch={false}
-              className="inline-block mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors"
+              className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors text-center"
             >
-              Mulai Tonton
+              ▶ Mulai Tonton
             </Link>
           </div>
         </div>

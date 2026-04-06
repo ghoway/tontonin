@@ -95,6 +95,11 @@ export function Header() {
             <span className="text-white font-bold text-lg hidden sm:inline">{appName}</span>
           </Link>
 
+          {/* App Name for Mobile Center */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 sm:hidden">
+            <span className="text-white font-bold text-sm">{appName}</span>
+          </div>
+
           {/* Search Bar */}
           <div className="flex-1 max-w-md mx-4 hidden sm:block relative">
             <form onSubmit={submitSearch}>

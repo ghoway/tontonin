@@ -2,29 +2,103 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
-import { getMeloloForYou, getMeloloLatest, getMeloloSearch, getMeloloTrending } from '@/lib/api';
+import { PaginatedDramaSection } from '@/components/PaginatedDramaSection';
+import { getMeloloDetail, getMeloloForYou, getMeloloLatest, getMeloloSearch, getMeloloTrending } from '@/lib/api';
 
 export const revalidate = 300;
+
+function pickMeloloDetailObject(input: any): any | null {
+  if (!input) return null;
+  if (Array.isArray(input)) return input[0] || null;
+  if (typeof input !== 'object') return null;
+
+  const candidates = [
+    input.data?.video_data,
+    input.data?.book,
+    input.data?.detail,
+    input.data,
+    input.result,
+    input.book,
+    input.detail,
+    input,
+  ];
+
+  for (const c of candidates) {
+    if (c && typeof c === 'object' && !Array.isArray(c)) return c;
+  }
+
+  return null;
+}
+
+async function enrichMeloloCovers(dramas: any[]): Promise<any[]> {
+  if (!Array.isArray(dramas) || dramas.length === 0) return [];
+
+  return Promise.all(
+    dramas.map(async (drama) => {
+      const hasRenderableCover = Boolean(
+        drama?.series_cover || drama?.book_pic || drama?.first_chapter_cover || drama?.cover || drama?.coverWap
+      );
+
+      if (hasRenderableCover) return drama;
+
+      const id = drama?.bookId || drama?.book_id || drama?.series_id_str;
+      if (!id || typeof id !== 'string') return drama;
+
+      try {
+        const detail = await getMeloloDetail(id);
+        const obj = pickMeloloDetailObject(detail);
+        if (!obj) return drama;
+
+        return {
+          ...drama,
+          series_cover: obj.series_cover || drama.series_cover,
+          book_pic: obj.book_pic || drama.book_pic,
+          first_chapter_cover: obj.first_chapter_cover || drama.first_chapter_cover,
+        };
+      } catch {
+        return drama;
+      }
+    })
+  );
+}
 
 async function ForYouSection() {
   const data = await getMeloloForYou();
   const dramas = Array.isArray(data) ? data : [];
+  const withCover = await enrichMeloloCovers(dramas);
 
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="melolo" />;
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={withCover} type="melolo" />;
 }
 
 async function LatestSection() {
   const data = await getMeloloLatest();
   const dramas = Array.isArray(data) ? data : [];
+  const withCover = await enrichMeloloCovers(dramas);
 
-  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="melolo" />;
+  return <ExpandableDramaSection title="Terbaru" dramas={withCover} type="melolo" />;
 }
 
 async function TrendingSection() {
   const data = await getMeloloTrending();
   const dramas = Array.isArray(data) ? data : [];
+  const withCover = await enrichMeloloCovers(dramas);
 
-  return <ExpandableDramaSection title="Trending" dramas={dramas} type="melolo" />;
+  return <ExpandableDramaSection title="Trending" dramas={withCover} type="melolo" />;
+}
+
+async function LainnyaSection() {
+  const latest = await getMeloloLatest();
+  const dramas = Array.isArray(latest) ? latest : [];
+  const withCover = await enrichMeloloCovers(dramas);
+
+  return (
+    <PaginatedDramaSection
+      title="Lainnya"
+      initialDramas={withCover}
+      type="melolo"
+      fetchEndpoint="/api/melolo/foryou"
+    />
+  );
 }
 
 async function SearchSection({ query }: { query: string }) {
@@ -34,7 +108,7 @@ async function SearchSection({ query }: { query: string }) {
   return (
     <>
       <div className="text-zinc-400 mb-4 ml-2">Hasil pencarian: "{query}"</div>
-      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="melolo" initialVisible={18} loadStep={9} />
+      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="melolo" initialVisible={18} />
     </>
   );
 }
@@ -86,6 +160,10 @@ export default async function MeloloPage({
               
               <Suspense fallback={<LoadingSkeleton />}>
                 <TrendingSection />
+              </Suspense>
+
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LainnyaSection />
               </Suspense>
             </>
           )}

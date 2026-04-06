@@ -1,0 +1,1086 @@
+openapi: 3.0.0
+info:
+  title: SΛNSΞKΛI API Documentation
+  description: |
+    Selamat datang di dokumentasi Sansekai API.
+    Layanan Rest API gratis yang dapat kamu gunakan.
+    **Note: API ini memiliki rate limit request 50/menit.**
+
+    Jika anda tertarik untuk memiliki salah satu source code dari API ini? Silakan klik link pembelian: [Beli Source Code](https://lynk.id/sansekai).
+
+    Website nonton dracin gratis no login dan no iklan: [https://drama.sansekai.my.id](https://drama.sansekai.my.id)
+  version: 1.0.0
+
+servers:
+  - url: https://api.sansekai.my.id
+    description: Production Server
+
+paths:
+  /dramabox/foryou:
+    get:
+      tags:
+        - DramaBox
+      summary: Drama For You
+      description: Mengambil daftar drama rekomendasi untuk pengguna.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Nomor halaman, default 1
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/vip:
+    get:
+      tags:
+        - DramaBox
+      summary: Drama VIP
+      description: Mengambil daftar drama VIP.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/dubindo:
+    get:
+      tags:
+        - DramaBox
+      summary: Drama Dubbed Indonesian
+      description: Mengambil daftar drama yang telah didubbing ke bahasa Indonesia.
+      parameters:
+        - name: classify
+          in: query
+          required: false
+          description: "Classify = **terpopuler** atau **terbaru**"
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: Nomor halaman.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil list drama dub indo
+
+  /dramabox/randomdrama:
+    get:
+      tags:
+        - DramaBox
+      summary: Random Drama Video
+      description: Mengambil video drama secara acak (For You Versi Video).
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/latest:
+    get:
+      tags:
+        - DramaBox
+      summary: Drama Terbaru
+      description: Mengambil daftar drama yang baru dirilis.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/trending:
+    get:
+      tags:
+        - DramaBox
+      summary: Trending Drama
+      description: Mengambil daftar drama yang sedang populer.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/populersearch:
+    get:
+      tags:
+        - DramaBox
+      summary: Pencarian Populer
+      description: Mengambil daftar kata kunci pencarian yang paling banyak dicari.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramabox/search:
+    get:
+      tags:
+        - DramaBox
+      summary: Cari Drama
+      description: Mencari drama berdasarkan judul atau kueri tertentu.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: pewaris)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mencari data
+
+  /dramabox/detail:
+    get:
+      tags:
+        - DramaBox
+      summary: Ambil Detail Drama
+      description: Mengambil detail drama dari bookId.
+      parameters:
+        - name: bookId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 41000116666)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil detail drama
+
+  /dramabox/allepisode:
+    get:
+      tags:
+        - DramaBox
+      summary: Ambil Semua Episode
+      description: |
+        Mengambil link streaming untuk seluruh episode dari sebuah drama.
+        **NOTE: Proses ini membutuhkan waktu tergantung jumlah episode.**
+      parameters:
+        - name: bookId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 41000116666)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil daftar episode
+
+  /dramabox/decrypt:
+    get:
+      tags:
+        - DramaBox
+      summary: Decrypt URL Video
+      description: |
+        Ini gunanya untuk mengambil link streaming yang asli yang sudah didecrypt karena result link yang di dapat dari endpoint /dramabox/allepisode itu sudah diencrypt.
+        **NOTE: Linknya streaming video dramabox didapat dari endpoint /dramabox/allepisode**
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: "Link streaming video dramabox yang sudah diencrypt (contoh: https://hwztakavideo.dramaboxdb.com/xxxx/xxxx/xxxx.encrypt.mp4?etavirp_nuyila=1)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil daftar episode
+
+  /reelshort/foryou:
+    get:
+      tags:
+        - ReelShort
+      summary: For You (Untukmu)
+      description: Mengambil daftar drama rekomendasi untuk pengguna.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman, default 1"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /reelshort/homepage:
+    get:
+      tags:
+        - ReelShort
+      summary: Halaman Homepage
+      description: Mengambil daftar drama di halaman homepage.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /reelshort/search:
+    get:
+      tags:
+        - ReelShort
+      summary: Halaman Pencarian Drama
+      description: Mengambil daftar drama yang sesuai dengan pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: pewaris)"
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman, default 1"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /reelshort/detail:
+    get:
+      tags:
+        - ReelShort
+      summary: Halaman Detail Drama
+      description: Mengambil detail drama dari bookId.
+      parameters:
+        - name: bookId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 695f4e2f97c459a97700cc47)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil detail drama
+
+  /reelshort/episode:
+    get:
+      tags:
+        - ReelShort
+      summary: Ambil stream url episode drama
+      description: Mengambil stream url episode drama dari bookId dan episodeNumber.
+      parameters:
+        - name: bookId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 695f4e2f97c459a97700cc47)"
+          schema:
+            type: string
+        - name: episodeNumber
+          in: query
+          required: true
+          description: "Nomor episode (contoh: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil detail episode
+
+  /shortmax/foryou:
+    get:
+      tags:
+        - ShortMax
+      summary: For You (Untukmu)
+      description: Mengambil daftar drama rekomendasi untuk pengguna.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman, default 1"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/latest:
+    get:
+      tags:
+        - ShortMax
+      summary: Drama Terbaru
+      description: Mengambil daftar drama terbaru.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/rekomendasi:
+    get:
+      tags:
+        - ShortMax
+      summary: Drama Rekomendasi
+      description: Mengambil daftar drama rekomendasi.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/vip:
+    get:
+      tags:
+        - ShortMax
+      summary: Drama VIP
+      description: Mengambil daftar drama VIP.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/search:
+    get:
+      tags:
+        - ShortMax
+      summary: Pencarian Drama
+      description: Mencari daftar drama menggunakan kata kunci.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: cinta)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/detail:
+    get:
+      tags:
+        - ShortMax
+      summary: Detail Drama
+      description: Mengambil detail dari sebuah drama berdasarkan shortPlayId.
+      parameters:
+        - name: shortPlayId
+          in: query
+          required: true
+          description: "shortPlayId drama (contoh: 2132)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /shortmax/allepisode:
+    get:
+      tags:
+        - ShortMax
+      summary: Semua Episode Drama
+      description: |
+        Mengambil daftar semua episode drama berdasarkan shortPlayId.
+
+        **NOTE: Untuk contoh player video Shortmax agar video bisa jalan bisa cek contohnya di [Sini (klik)](https://raw.githubusercontent.com/Sansekai/SekaiDrama/refs/heads/main/src/app/api/shortmax/hls/route.ts)**
+      parameters:
+        - name: shortPlayId
+          in: query
+          required: true
+          description: "shortPlayId drama (contoh: 2132)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /netshort/foryou:
+    get:
+      tags:
+        - NetShort
+      summary: For You (Untukmu)
+      description: Mengambil daftar drama rekomendasi untuk pengguna.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Nomor halaman.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /netshort/theaters:
+    get:
+      tags:
+        - NetShort
+      summary: Halaman Theater
+      description: Mengambil daftar drama di halaman theater.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /netshort/search:
+    get:
+      tags:
+        - NetShort
+      summary: Cari Drama
+      description: Mengambil daftar drama yang cocok dengan query pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: pewaris)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /netshort/allepisode:
+    get:
+      tags:
+        - NetShort
+      summary: Semua Episode Drama
+      description: Mengambil semua link stream episode drama.
+      parameters:
+        - name: shortPlayId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 1894598206267256834)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/foryou:
+    get:
+      tags:
+        - Melolo
+      summary: Drama For You
+      description: Mengambil daftar drama untuk Anda.
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          description: "Offset untuk pagination, default 20"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/latest:
+    get:
+      tags:
+        - Melolo
+      summary: Drama Terbaru
+      description: Mengambil daftar drama terbaru.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/trending:
+    get:
+      tags:
+        - Melolo
+      summary: Drama Trending
+      description: Mengambil daftar drama trending.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/search:
+    get:
+      tags:
+        - Melolo
+      summary: Cari Drama
+      description: Mengambil daftar drama yang cocok dengan query pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: pewaris)"
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          description: "Jumlah data yang akan diambil (default: 10)"
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          required: false
+          description: "Offset data yang akan diambil (default: 0)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/detail:
+    get:
+      tags:
+        - Melolo
+      summary: Detail Drama
+      description: Mengambil detail drama.
+      parameters:
+        - name: bookId
+          in: query
+          required: true
+          description: "ID unik drama (contoh: 7583531888644459525)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /melolo/stream:
+    get:
+      tags:
+        - Melolo
+      summary: Stream Drama
+      description: Mengambil stream drama.
+      parameters:
+        - name: videoId
+          in: query
+          required: true
+          description: |
+            ID unik drama (contoh: 7583564321033030661)
+            **Perlu diisi dengan videoId yang didapatkan dari endpoint /melolo/detail properties "vid"**
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /freereels/foryou:
+    get:
+      tags:
+        - FreeReels
+      summary: For You (Untukmu)
+      description: Mengambil daftar drama rekomendasi untuk pengguna.
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          description: "Offset untuk pagination. (default: 20)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /freereels/homepage:
+    get:
+      tags:
+        - FreeReels
+      summary: Halaman Utama
+      description: Mengambil daftar drama di halaman utama.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /freereels/animepage:
+    get:
+      tags:
+        - FreeReels
+      summary: Halaman Anime
+      description: Mengambil daftar anime di halaman anime.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /freereels/search:
+    get:
+      tags:
+        - FreeReels
+      summary: Halaman Pencarian Drama
+      description: Mengambil daftar drama yang sesuai dengan pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian (contoh: pewaris)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /freereels/detailAndAllEpisode:
+    get:
+      tags:
+        - FreeReels
+      summary: Detail Drama dan Semua Episode
+      description: Mengambil detail drama dan semua episode.
+      parameters:
+        - name: key
+          in: query
+          required: true
+          description: "KEY drama (contoh: eNFDnztZRb)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/home:
+    get:
+      tags:
+        - DramaNova
+      summary: Halaman Utama
+      description: Mengambil konten halaman utama DramaNova.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/drama18:
+    get:
+      tags:
+        - DramaNova
+      summary: Drama 18+
+      description: Mengambil konten drama 18+.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/komik:
+    get:
+      tags:
+        - DramaNova
+      summary: Komik
+      description: Mengambil konten komik.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/search:
+    get:
+      tags:
+        - DramaNova
+      summary: Pencarian
+      description: Mencari konten berdasarkan judul.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Judul yang ingin dicari.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/detail:
+    get:
+      tags:
+        - DramaNova
+      summary: Detail Konten
+      description: Mengambil detail konten, list link subtitle dan list file ID berdasarkan ID Drama.
+      parameters:
+        - name: dramaId
+          in: query
+          required: true
+          description: "ID Drama (Contoh: 1993145796638466048)."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /dramanova/getvideo:
+    get:
+      tags:
+        - DramaNova
+      summary: Video Konten
+      description: Mengambil video konten berdasarkan File ID.
+      parameters:
+        - name: fileId
+          in: query
+          required: true
+          description: |
+            File ID drama
+            **File ID bisa didapatkan dari endpoint /dramanova/detail**
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/latest:
+    get:
+      tags:
+        - Anime
+      summary: Anime Terbaru
+      description: Mengambil daftar anime update terbaru.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/recommended:
+    get:
+      tags:
+        - Anime
+      summary: Anime Rekomendasi
+      description: Mengambil daftar anime rekomendasi.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/search:
+    get:
+      tags:
+        - Anime
+      summary: Cari Anime
+      description: Mengambil daftar anime yang cocok dengan query pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Query pencarian anime (contoh: naruto)"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/detail:
+    get:
+      tags:
+        - Anime
+      summary: Detail Anime
+      description: Mengambil detail anime.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: "ID anime"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/movie:
+    get:
+      tags:
+        - Anime
+      summary: Movie Anime
+      description: Mengambil list movie anime.
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /anime/getvideo:
+    get:
+      tags:
+        - Anime
+      summary: Ambil Video Anime
+      description: Mengambil link streaming video anime.
+      parameters:
+        - name: animeId
+          in: query
+          required: true
+          description: "ID anime"
+          schema:
+            type: string
+        - name: episode
+          in: query
+          required: true
+          description: "Nomor episode"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/recommended:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list komik rekomendasi
+      description: Mengambil list komik rekomendasi.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/latest:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list komik terbaru
+      description: Mengambil list komik terbaru.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/search:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list komik pencarian
+      description: Mengambil list komik pencarian.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Query pencarian"
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/popular:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list komik populer
+      description: Mengambil list komik populer.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/detail:
+    get:
+      tags:
+        - Komik
+      summary: Ambil detail komik
+      description: "Mengambil detail komik (contoh: badacf54-5e5e-4548-9470-7f533e88fc77)."
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: "ID komik"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/chapterlist:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list chapter komik
+      description: "Mengambil list chapter komik (contoh: badacf54-5e5e-4548-9470-7f533e88fc77)."
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: "ID komik"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /komik/getimage:
+    get:
+      tags:
+        - Komik
+      summary: Ambil list image komik
+      description: |
+        Mengambil list image komik (contoh: ed3c22f1-7a1e-4561-819f-026752f7fe30).
+        **'chapter_id' didapat dari endpoint /komik/chapterlist**
+      parameters:
+        - name: chapter_id
+          in: query
+          required: true
+          description: "ID chapter"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /moviebox/homepage:
+    get:
+      tags:
+        - MovieBox
+      summary: Halaman Utama
+      description: Mengambil konten halaman utama MovieBox (Featured, Popular, dll).
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /moviebox/trending:
+    get:
+      tags:
+        - MovieBox
+      summary: Konten Trending
+      description: Mengambil daftar film dan serial TV yang sedang trending.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil data
+
+  /moviebox/search:
+    get:
+      tags:
+        - MovieBox
+      summary: Cari Film/Serial
+      description: Mencari film atau serial TV berdasarkan kata kunci.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: "Kata kunci pencarian"
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: "Nomor halaman. (default: 1)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mencari data
+
+  /moviebox/detail:
+    get:
+      tags:
+        - MovieBox
+      summary: Detail Film/Serial
+      description: Mengambil informasi detail film atau serial TV.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: "ID film atau serial TV"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mengambil detail
+
+  /moviebox/sources:
+    get:
+      tags:
+        - MovieBox
+      summary: Ambil Link Download
+      description: |
+        Mengambil link download untuk film atau episode serial TV.
+
+        **Nanti url downloadnya dicopy lalu digunakan di endpoint /generate-link-stream-video**
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: "ID film atau serial TV"
+          schema:
+            type: string
+        - name: season
+          in: query
+          required: false
+          description: "Nomor season (untuk serial TV)"
+          schema:
+            type: integer
+        - name: episode
+          in: query
+          required: false
+          description: "Nomor episode (untuk serial TV)"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Berhasil mengambil link download
+
+  /moviebox/generate-link-stream-video:
+    get:
+      tags:
+        - MovieBox
+      summary: Generate Download URL
+      description: |
+        Validasi URL dan generate link download yang siap digunakan.
+        **Response akan berisi URL yang bisa di-copy dan dibuka di jendela browser baru untuk download.**
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: "Link streaming video moviebox"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "URL berhasil divalidasi, response berisi link download"
+
+  /ai/chatgpt:
+    get:
+      tags:
+        - Artificial Intelligence (AI)
+      summary: ChatGPT (model gpt-4o-mini)
+      description: ChatGPT AI (model gpt-4o-mini)
+      parameters:
+        - name: prompt
+          in: query
+          required: true
+          description: "Prompt untuk ChatGPT"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil mendapatkan response dari ChatGPT AI
+
+  /uploader:
+    post:
+      tags:
+        - Uploader
+      summary: Upload File
+      description: Upload file gambar, video, audio, atau PDF (Maksimal 20MB).
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File yang akan di-upload
+              required:
+                - file
+      responses:
+        "200":
+          description: Berhasil upload file

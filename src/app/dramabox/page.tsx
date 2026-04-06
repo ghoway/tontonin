@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
+import { PaginatedDramaSection } from '@/components/PaginatedDramaSection';
 import { getDramaBoxForYou, getDramaBoxLatest, getDramaBoxSearch, getDramaBoxTrending } from '@/lib/api';
 
 export const revalidate = 300;
@@ -10,37 +11,35 @@ async function ForYouSection() {
   const data = await getDramaBoxForYou(1);
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="dramabox" initialVisible={8} />;
 }
 
 async function LatestSection() {
   const data = await getDramaBoxLatest();
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
+  return <ExpandableDramaSection title="Terbaru" dramas={dramas} type="dramabox" initialVisible={8} />;
 }
 
 async function TrendingSection() {
   const data = await getDramaBoxTrending();
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Trending" dramas={dramas} type="dramabox" initialVisible={8} loadStep={8} />;
+  return <ExpandableDramaSection title="Trending" dramas={dramas} type="dramabox" initialVisible={8} />;
 }
 
 async function LainnyaSection() {
-  const [page1, page2] = await Promise.all([getDramaBoxForYou(1), getDramaBoxForYou(2)]);
-  const first = Array.isArray(page1) ? page1 : [];
+  const page2 = await getDramaBoxForYou(2);
   const second = Array.isArray(page2) ? page2 : [];
 
-  const seen = new Set<string>();
-  const merged = [...first, ...second].filter((item: any, idx: number) => {
-    const key = String(item?.bookId || idx);
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  return <ExpandableDramaSection title="Lainnya" dramas={merged} type="dramabox" initialVisible={10} loadStep={6} />;
+  return (
+    <PaginatedDramaSection
+      title="Lainnya"
+      initialDramas={second}
+      type="dramabox"
+      fetchEndpoint="/api/dramabox/foryou"
+    />
+  );
 }
 
 async function SearchSection({ query }: { query: string }) {
@@ -50,7 +49,7 @@ async function SearchSection({ query }: { query: string }) {
   return (
     <>
       <div className="text-zinc-400 mb-4 ml-2">Hasil pencarian: "{query}"</div>
-      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="dramabox" initialVisible={18} loadStep={9} />
+      <ExpandableDramaSection title="Hasil Pencarian" dramas={dramas} type="dramabox" initialVisible={18} />
     </>
   );
 }

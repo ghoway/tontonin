@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { WatchClient } from '@/components/WatchClient';
 import { getReelShortDetail } from '@/lib/api';
@@ -92,22 +93,20 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
     episode: i + 1,
   }));
 
+  const episodeButtons = Array.from({ length: drama.chapterCount }, (_, i) => i + 1);
+
   return (
-    <div className="bg-black text-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Navigation />
-        <div className="mt-8">
-          <WatchClient
-            drama={drama}
-            streams={streamPlaceholders}
-            initialEpisode={episode || '1'}
-            backHref={`/reelshort/${bookId}`}
-            provider="reelshort"
-            providerBookId={bookId}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      {/* Video Player */}
+      <WatchClient
+        drama={drama}
+        streams={streamPlaceholders}
+        initialEpisode={episode || '1'}
+        backHref={`/reelshort/${bookId}`}
+        provider="reelshort"
+        providerBookId={bookId}
+      />
+    </>
   );
 }
 
