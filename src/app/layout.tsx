@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { ErrorProvider } from "@/components/ErrorModal";
 import { TopNavigation } from "@/components/TopNavigation";
 import "./globals.css";
@@ -36,6 +37,7 @@ export default function RootLayout({
           <TopNavigation />
           <main className="flex-1">{children}</main>
         </ErrorProvider>
+        <Analytics />
       </body>
     </html>
   );
