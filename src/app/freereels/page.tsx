@@ -2,7 +2,8 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
-import { getFreeReelsForYou, getFreeReelsHomepage } from '@/lib/api';
+import { LoadMoreDramaSection } from '@/components/LoadMoreDramaSection';
+import { getFreeReelsForYou, getFreeReelsHomepage, getFreeReelsAnime } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -31,27 +32,20 @@ async function HomepageSection() {
   const data = await getFreeReelsHomepage();
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Pilihan Terbaik">
-      {dramas.slice(0, 18).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.key || drama.bookId || idx}`}
-          id={drama.key || drama.bookId || ''}
-          title={drama.title || drama.bookName || 'Unknown'}
-          image={drama.cover || drama.coverWap || '/placeholder.svg'}
-          episodes={drama.episode_count || drama.chapterCount}
-          views={drama.view_count || drama.playCount}
-          type="freereels"
-        />
-      ))}
-    </Section>
-  );
+  return <LoadMoreDramaSection title="Lainnya" dramas={dramas} type="freereels" initialVisible={12} loadStep={6} />;
+}
+
+async function AnimeSection() {
+  const data = await getFreeReelsAnime();
+  const dramas = Array.isArray(data) ? data : [];
+
+  return <LoadMoreDramaSection title="Anime" dramas={dramas} type="freereels" initialVisible={12} loadStep={6} />;
 }
 
 function LoadingSkeleton() {
   return (
     <>
-      {[1, 2].map((section) => (
+      {[1, 2, 3].map((section) => (
         <div key={section} className="mb-8">
           <div className="h-8 bg-zinc-800 rounded w-32 mb-4 animate-pulse ml-2" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -78,6 +72,10 @@ export default function FreeReelsPage() {
           
           <Suspense fallback={<LoadingSkeleton />}>
             <HomepageSection />
+          </Suspense>
+
+          <Suspense fallback={<LoadingSkeleton />}>
+            <AnimeSection />
           </Suspense>
         </div>
       </div>

@@ -2,7 +2,8 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
-import { getNetShortForYou } from '@/lib/api';
+import { LoadMoreDramaSection } from '@/components/LoadMoreDramaSection';
+import { getNetShortForYou, getNetShortTheaters } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -26,13 +27,24 @@ async function ForYouSection() {
   );
 }
 
+async function LainnyaSection() {
+  const data = await getNetShortTheaters();
+  const dramas = Array.isArray(data) ? data : [];
+
+  return <LoadMoreDramaSection title="Lainnya" dramas={dramas} type="netshort" initialVisible={12} loadStep={6} />;
+}
+
 function LoadingSkeleton() {
   return (
-    <Section title="Untuk Kamu">
-      {Array.from({ length: 18 }).map((_, i) => (
-        <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+    <>
+      {['Untuk Kamu', 'Lainnya'].map((title) => (
+        <Section key={title} title={title}>
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+          ))}
+        </Section>
       ))}
-    </Section>
+    </>
   );
 }
 
@@ -45,6 +57,10 @@ export default function NetShortPage() {
         <div className="mt-8">
           <Suspense fallback={<LoadingSkeleton />}>
             <ForYouSection />
+          </Suspense>
+
+          <Suspense fallback={<LoadingSkeleton />}>
+            <LainnyaSection />
           </Suspense>
         </div>
       </div>

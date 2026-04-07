@@ -13,6 +13,7 @@ interface PaginatedDramaSectionProps {
   initialVisible?: number;
   loadStep?: number;
   fetchEndpoint: string;
+  initialPage?: number;
 }
 
 export function PaginatedDramaSection({
@@ -22,10 +23,11 @@ export function PaginatedDramaSection({
   initialVisible = 10,
   loadStep = 10,
   fetchEndpoint,
+  initialPage = 1,
 }: PaginatedDramaSectionProps) {
   const [allDramas, setAllDramas] = useState(initialDramas);
   const [visibleCount, setVisibleCount] = useState(initialVisible);
-  const [currentPage, setCurrentPage] = useState(3);
+  const [currentPage, setCurrentPage] = useState(initialPage + 1);
   const [isLoading, setIsLoading] = useState(false);
   const [hasReachedMax, setHasReachedMax] = useState(false);
 
@@ -47,6 +49,8 @@ export function PaginatedDramaSection({
 
     const raw =
       meloloThumb ||
+      drama.posterImgUrl ||
+      drama.posterImg ||
       drama.coverWap ||
       drama.cover ||
       drama.book_pic ||
@@ -77,7 +81,15 @@ export function PaginatedDramaSection({
       return typeof id === 'string' && id.trim() ? id : `melolo-${idx}`;
     }
 
-    return drama.bookId || drama.book_id || drama.shortPlayId || drama.shortplayid || drama.id || String(idx);
+    return (
+      drama.dramaId ||
+      drama.bookId ||
+      drama.book_id ||
+      drama.shortPlayId ||
+      drama.shortplayid ||
+      drama.id ||
+      String(idx)
+    );
   };
 
   const getTitle = (drama: any) => {
@@ -115,7 +127,14 @@ export function PaginatedDramaSection({
     setIsLoading(true);
     try {
       const response = await fetch(`${fetchEndpoint}?page=${currentPage}`);
-      const newDramas = await response.json();
+      const payload = await response.json();
+      const newDramas = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.rows)
+          ? payload.rows
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
       
       if (!Array.isArray(newDramas) || newDramas.length === 0) {
         setHasReachedMax(true);
@@ -132,6 +151,12 @@ export function PaginatedDramaSection({
         return true;
       });
 
+      if (deduplicated.length === 0) {
+        setHasReachedMax(true);
+        setCurrentPage((prev) => prev + 1);
+        return;
+      }
+
       setAllDramas((prev) => [...prev, ...deduplicated]);
       setCurrentPage((prev) => prev + 1);
       setVisibleCount((prev) => Math.min(prev + loadStep, allDramas.length + deduplicated.length));
@@ -147,10 +172,27 @@ export function PaginatedDramaSection({
       <Section title={title}>
         {visibleItems.map((drama, idx) => (
           <DramaCard
-            key={getId(drama, idx)}
+            key={`${getId(drama, idx)}-${idx}`}
             id={getId(drama, idx)}
             title={getTitle(drama)}
             image={normalizeImage(drama)}
+            episodes={
+              drama.totalEpisodes ||
+              drama.chapterCount ||
+              drama.episodeCount ||
+              drama.chapter_count ||
+              drama.episode_count ||
+              drama.episodes
+            }
+            views={
+              drama.viewCount ||
+              drama.heatScoreShow ||
+              drama.view_count ||
+              drama.playNum ||
+              drama.playCount ||
+              drama.play_count ||
+              drama.views
+            }
             type={type}
           />
         ))}

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "Nontonin",
   description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Platform streaming drama, film, dan anime gratis tanpa login",
   keywords: process.env.NEXT_PUBLIC_APP_KEYWORDS?.split(", ") || ["drama", "streaming", "nonton", "tonton"],
+  authors: [{ name: process.env.NEXT_PUBLIC_APP_AUTHOR || "Wahidayatullah", url: "https://wahidayatullah.my.id" }],
 };
 
 export default function RootLayout({

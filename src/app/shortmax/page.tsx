@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { DramaCard } from '@/components/DramaCard';
+import { LoadMoreDramaSection } from '@/components/LoadMoreDramaSection';
 import { getShortMaxForYou, getShortMaxLatest } from '@/lib/api';
 
 export const revalidate = 300;
@@ -31,21 +32,7 @@ async function LatestSection() {
   const data = await getShortMaxLatest();
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Terbaru">
-      {dramas.slice(0, 18).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.shortPlayId || drama.bookId || idx}`}
-          id={drama.shortPlayId || drama.bookId || ''}
-          title={drama.name || drama.bookName || 'Unknown'}
-          image={drama.cover || drama.coverWap || '/placeholder.svg'}
-          episodes={drama.totalEpisodes || drama.chapterCount}
-          views={drama.playNum || drama.playCount}
-          type="shortmax"
-        />
-      ))}
-    </Section>
-  );
+  return <LoadMoreDramaSection title="Terbaru" dramas={dramas} type="shortmax" initialVisible={12} loadStep={6} />;
 }
 
 function LoadingSkeleton() {

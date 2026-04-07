@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
-import { Section } from '@/components/Section';
-import { DramaCard } from '@/components/DramaCard';
-import { getDramaNovaHome } from '@/lib/api';
+import { PaginatedDramaSection } from '@/components/PaginatedDramaSection';
+import { getDramaNovaDrama18, getDramaNovaHome, getDramaNovaKomik } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -10,30 +9,37 @@ async function HomeSection() {
   const data = await getDramaNovaHome(1);
   const dramas = Array.isArray(data) ? data : [];
 
-  return (
-    <Section title="Drama Terbaru">
-      {dramas.slice(0, 18).map((drama: any, idx: number) => (
-        <DramaCard
-          key={`${drama.dramaId || drama.id || idx}`}
-          id={drama.dramaId || drama.id || ''}
-          title={drama.title || drama.bookName || 'Unknown'}
-          image={drama.posterImgUrl || drama.posterImg || drama.cover || drama.coverWap || '/placeholder.svg'}
-          episodes={drama.totalEpisodes || (drama.subtitle ? (Array.isArray(drama.subtitle) ? drama.subtitle.length : 0) : 0)}
-          views={drama.viewCount}
-          type="dramanova"
-        />
-      ))}
-    </Section>
-  );
+  return <PaginatedDramaSection title="Home" initialDramas={dramas} type="dramanova" initialVisible={12} loadStep={6} fetchEndpoint="/api/dramanova/home" initialPage={1} />;
+}
+
+async function KomikSection() {
+  const data = await getDramaNovaKomik(1);
+  const dramas = Array.isArray(data) ? data : [];
+
+  return <PaginatedDramaSection title="Komik" initialDramas={dramas} type="dramanova" initialVisible={12} loadStep={6} fetchEndpoint="/api/dramanova/komik" initialPage={1} />;
+}
+
+async function Drama18Section() {
+  const data = await getDramaNovaDrama18(1);
+  const dramas = Array.isArray(data) ? data : [];
+
+  return <PaginatedDramaSection title="Drama 18" initialDramas={dramas} type="dramanova" initialVisible={12} loadStep={6} fetchEndpoint="/api/dramanova/drama18" initialPage={1} />;
 }
 
 function LoadingSkeleton() {
   return (
-    <Section title="Drama Terbaru">
-      {Array.from({ length: 18 }).map((_, i) => (
-        <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+    <>
+      {[1, 2, 3].map((section) => (
+        <div key={section} className="mb-8">
+          <div className="h-8 bg-zinc-800 rounded w-32 mb-4 animate-pulse ml-2" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 18 }).map((_, i) => (
+              <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        </div>
       ))}
-    </Section>
+    </>
   );
 }
 
@@ -46,6 +52,14 @@ export default function DramaNovaPage() {
         <div className="mt-8">
           <Suspense fallback={<LoadingSkeleton />}>
             <HomeSection />
+          </Suspense>
+
+          <Suspense fallback={<LoadingSkeleton />}>
+            <KomikSection />
+          </Suspense>
+
+          <Suspense fallback={<LoadingSkeleton />}>
+            <Drama18Section />
           </Suspense>
         </div>
       </div>

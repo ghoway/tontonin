@@ -195,8 +195,19 @@ export async function getReelShortForYou(page?: number) {
 
 export async function getReelShortHomepage() {
   const result = await apiFetch('/api/reelshort/homepage');
+  const root = result as Record<string, any> | null;
+  const lists = root?.data?.lists;
+  if (Array.isArray(lists)) {
+    const books = lists.flatMap((entry: any) => (Array.isArray(entry?.books) ? entry.books : []));
+    if (books.length > 0) return books;
+  }
+
   const normalized = asArray(result);
-  if (normalized.length > 0) return normalized;
+  if (normalized.length > 0) {
+    const books = normalized.flatMap((entry: any) => (Array.isArray(entry?.books) ? entry.books : []));
+    if (books.length > 0) return books;
+  }
+
   return [];
 }
 
@@ -244,6 +255,21 @@ export async function getShortMaxAllEpisode(shortPlayId: string) {
 // NetShort APIs
 export async function getNetShortForYou(page?: number) {
   const result = await apiFetch(`/api/netshort/foryou${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
+}
+
+export async function getNetShortTheaters() {
+  const result = await apiFetch('/api/netshort/theaters');
+
+  if (Array.isArray(result)) {
+    const contentInfos = result.flatMap((group: any) =>
+      Array.isArray(group?.contentInfos) ? group.contentInfos : []
+    );
+    if (contentInfos.length > 0) return contentInfos;
+  }
+
   const normalized = asArray(result);
   if (normalized.length > 0) return normalized;
   return [];
@@ -311,11 +337,62 @@ export async function getFreeReelsForYou(offset?: number) {
   return [];
 }
 
+function extractFreeReelsModuleItems(result: any, moduleType?: string) {
+  const rootItems = Array.isArray(result?.data?.items)
+    ? result.data.items
+    : Array.isArray(result?.items)
+      ? result.items
+      : [];
+
+  if (rootItems.length > 0) {
+    const modules = moduleType
+      ? rootItems.filter((module: any) => module?.type === moduleType)
+      : rootItems;
+
+    const flattened = modules.flatMap((module: any) =>
+      Array.isArray(module?.items) ? module.items : []
+    );
+
+    return flattened.filter((item: any) => {
+      const key = String(item?.key ?? '').trim();
+      const title = String(item?.title ?? item?.bookName ?? '').trim();
+      const itemType = String(item?.item_type ?? '').toLowerCase();
+      if (itemType === 'card' && !key) return false;
+      return Boolean(key || title);
+    });
+  }
+
+  const normalized = asArray(result);
+  if (normalized.length > 0) {
+    const flattened = normalized.some((entry: any) => Array.isArray(entry?.items))
+      ? normalized.flatMap((entry: any) => (Array.isArray(entry?.items) ? entry.items : []))
+      : normalized;
+
+    return flattened.filter((item: any) => {
+      const key = String(item?.key ?? '').trim();
+      const title = String(item?.title ?? item?.bookName ?? '').trim();
+      return Boolean(key || title);
+    });
+  }
+
+  return [];
+}
+
 export async function getFreeReelsHomepage() {
   const result = await apiFetch('/api/freereels/homepage');
-  const normalized = asArray(result);
-  if (normalized.length > 0) return normalized;
-  return [];
+  const recommendItems = extractFreeReelsModuleItems(result, 'recommend');
+  if (recommendItems.length > 0) return recommendItems;
+
+  return extractFreeReelsModuleItems(result);
+}
+
+export async function getFreeReelsAnime() {
+  const animeResult = await apiFetch('/api/freereels/anime');
+  const animeItems = extractFreeReelsModuleItems(animeResult);
+  if (animeItems.length > 0) return animeItems;
+
+  const animePageResult = await apiFetch('/api/freereels/animepage');
+  return extractFreeReelsModuleItems(animePageResult);
 }
 
 export async function getFreeReelsSearch(query: string) {
@@ -327,8 +404,50 @@ export async function getFreeReelsDetailAndAllEpisode(key: string) {
 }
 
 // DramaNova APIs
+function extractDramaNovaGroupedItems(result: any) {
+  const groups = Array.isArray(result?.data)
+    ? result.data
+    : Array.isArray(result)
+      ? result
+      : [];
+
+  if (groups.length > 0) {
+    const items = groups.flatMap((group: any) =>
+      Array.isArray(group?.recommendModules) ? group.recommendModules : []
+    );
+
+    return items.filter((item: any) => {
+      const id = String(item?.dramaId ?? item?.id ?? '').trim();
+      const title = String(item?.title ?? '').trim();
+      return Boolean(id || title);
+    });
+  }
+
+  return [];
+}
+
 export async function getDramaNovaHome(page?: number) {
   const result = await apiFetch(`/api/dramanova/home${page ? `?page=${page}` : ''}`);
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
+}
+
+export async function getDramaNovaKomik(page?: number) {
+  const result = await apiFetch(`/api/dramanova/komik${page ? `?page=${page}` : ''}`);
+  const grouped = extractDramaNovaGroupedItems(result);
+  if (grouped.length > 0) return grouped;
+
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
+}
+
+export async function getDramaNovaDrama18(page?: number) {
+  const result = await apiFetch(`/api/dramanova/drama18${page ? `?page=${page}` : ''}`);
+  const grouped = extractDramaNovaGroupedItems(result);
+  if (grouped.length > 0) return grouped;
+
   const normalized = asArray(result);
   if (normalized.length > 0) return normalized;
   return [];

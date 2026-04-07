@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
+import { LoadMoreDramaSection } from '@/components/LoadMoreDramaSection';
 import { getReelShortForYou, getReelShortHomepage, getReelShortSearch } from '@/lib/api';
 
 export const revalidate = 300;
@@ -17,7 +18,7 @@ async function HomepageSection() {
   const data = await getReelShortHomepage();
   const dramas = Array.isArray(data) ? data : [];
 
-  return <ExpandableDramaSection title="Lainnya" dramas={dramas} type="reelshort" initialVisible={18} />;
+  return <LoadMoreDramaSection title="Lainnya" dramas={dramas} type="reelshort" initialVisible={12} loadStep={6} />;
 }
 
 async function SearchSection({ query }: { query: string }) {
