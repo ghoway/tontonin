@@ -114,14 +114,31 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
 
-        <div className="mt-8 grid md:grid-cols-3 gap-8">
+        <div className="mt-6">
+          <Link
+            href="/melolo"
+            prefetch={false}
+            className="inline-flex items-center gap-2 text-sm text-zinc-300 hover:text-white transition-colors"
+          >
+            ← Kembali
+          </Link>
+        </div>
+
+        <div className="mt-4 grid md:grid-cols-3 gap-8">
           <div className="md:col-span-1">
-            <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
+            <div className="group relative rounded-2xl overflow-hidden border border-zinc-800/80 bg-zinc-800 sticky top-20 shadow-lg">
               <img
                 src={poster || '/placeholder.svg'}
                 alt={title}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
+              <Link
+                href={`/melolo/${bookId}/watch`}
+                prefetch={false}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-5 py-2 bg-linear-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg opacity-0 group-hover:opacity-100 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-lg shadow-violet-700/30"
+              >
+                ▶ Mulai Tonton
+              </Link>
             </div>
           </div>
 
@@ -164,7 +181,7 @@ export default async function DetailPage({ params }: { params: Promise<{ bookId:
             <Link
               href={`/melolo/${bookId}/watch`}
               prefetch={false}
-              className="w-full block bg-linear-to-r from-violet-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity text-center"
+              className="w-full block bg-linear-to-r from-violet-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-700/30 active:translate-y-0 transition-all duration-200 text-center"
             >
               ▶ Mulai Tonton
             </Link>

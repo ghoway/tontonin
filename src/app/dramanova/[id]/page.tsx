@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
+import { AgeRestrictionStartButton } from '@/components/AgeRestrictionStartButton';
 import { getDramaNovaDetail } from '@/lib/api';
 
 export const revalidate = 300;
@@ -62,15 +63,28 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Navigation />
 
-        <div className={`mt-8 grid ${hasPoster ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-8`}>
+        <div className="mt-6">
+          <Link
+            href="/dramanova"
+            prefetch={false}
+            className="inline-flex items-center gap-2 text-sm text-zinc-300 hover:text-white transition-colors"
+          >
+            ← Kembali
+          </Link>
+        </div>
+
+        <div className={`mt-4 grid ${hasPoster ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-8`}>
           {hasPoster && (
             <div className="md:col-span-1">
-              <div className="rounded-lg overflow-hidden bg-zinc-800 sticky top-20">
+              <div className="group relative rounded-2xl overflow-hidden border border-zinc-800/80 bg-zinc-800 sticky top-20 shadow-lg">
                 <img
                   src={poster}
                   alt={title}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                 />
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-[70%] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <AgeRestrictionStartButton href={`/dramanova/${id}/watch`} className="py-2 text-sm" />
+                </div>
               </div>
             </div>
           )}
@@ -111,13 +125,7 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
 
-            <Link
-              href={`/dramanova/${id}/watch`}
-              prefetch={false}
-              className="w-full block bg-linear-to-r from-violet-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity text-center"
-            >
-              ▶ Mulai Tonton
-            </Link>
+            <AgeRestrictionStartButton href={`/dramanova/${id}/watch`} />
           </div>
         </div>
       </div>

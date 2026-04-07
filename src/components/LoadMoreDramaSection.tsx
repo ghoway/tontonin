@@ -127,7 +127,7 @@ export function LoadMoreDramaSection({
         <div className="flex justify-center py-8">
           <button
             onClick={showMore}
-            className="px-6 py-2 bg-linear-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+            className="px-6 py-2 bg-linear-to-r from-violet-600 to-indigo-600 text-white font-semibold rounded-lg hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-700/30 active:translate-y-0 transition-all duration-200"
           >
             Tampilkan Lebih Banyak
           </button>

@@ -81,6 +81,7 @@ export function WatchClient({
   providerBookId,
 }: WatchClientProps) {
   const { showError } = useError();
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'Tontonin';
   const [currentEpisode, setCurrentEpisode] = useState(parseInt(initialEpisode));
   const [resolvedUrl, setResolvedUrl] = useState<string>('');
   const [isResolving, setIsResolving] = useState(false);
@@ -360,19 +361,74 @@ export function WatchClient({
         <Link
           href={backHref || `/dramabox/${drama.bookId}`}
           prefetch={false}
-          className="absolute top-4 left-4 z-20 w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white text-lg transition-colors"
+          className={`absolute top-4 left-4 z-20 flex items-center gap-2 text-white/90 hover:text-white transition-all duration-300 p-2 -ml-2 rounded-full hover:bg-white/10 ${
+            showPagination ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+          }`}
         >
-          ←
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-6 h-6"
+          >
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+          <span className="font-bold hidden sm:inline shadow-black drop-shadow-md">{appName}</span>
         </Link>
 
         {/* Right Controls */}
-        <div className="absolute top-4 right-4 z-20">
+        <div
+          className={`absolute top-4 right-4 z-20 transition-all duration-300 ${
+            showPagination ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+          }`}
+        >
           <button 
             onClick={() => setShowEpisodeList(!showEpisodeList)}
-            className="w-10 h-10 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors text-lg"
+            className="p-2 text-white/90 hover:text-white transition-colors rounded-full hover:bg-white/10"
           >
-            ≡
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6 drop-shadow-md"
+            >
+              <path d="M3 12h.01"></path>
+              <path d="M3 18h.01"></path>
+              <path d="M3 6h.01"></path>
+              <path d="M8 12h13"></path>
+              <path d="M8 18h13"></path>
+              <path d="M8 6h13"></path>
+            </svg>
           </button>
+        </div>
+
+        {/* Top Title Overlay */}
+        <div
+          className={`absolute top-0 left-0 right-0 z-10 pointer-events-none transition-all duration-300 ${
+            showPagination ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+          }`}
+        >
+          <div className="h-12 bg-linear-to-b from-black/55 via-black/20 to-transparent" />
+          <div className="absolute top-1 left-1/2 -translate-x-1/2 text-center px-4 max-w-[85vw]">
+            <p className="text-white text-lg font-semibold drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] line-clamp-1">
+              {drama.bookName}
+            </p>
+            <p className="text-zinc-200 text-xs font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+              EP {currentEpisode}
+            </p>
+          </div>
         </div>
 
         {/* Video Player */}

@@ -145,7 +145,13 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
         bookName: root.shortPlayName || root.contentName || root.title || 'Unknown',
         coverWap: root.shortPlayCover || root.cover || root.poster || '',
         chapterCount,
-        introduction: root.script || root.description || root.summary || root.synopsis || 'No synopsis available',
+        introduction:
+          (typeof root.shotIntroduce === 'string' && root.shotIntroduce.trim()) ||
+          (typeof root.description === 'string' && root.description.trim()) ||
+          (typeof root.summary === 'string' && root.summary.trim()) ||
+          (typeof root.synopsis === 'string' && root.synopsis.trim()) ||
+          (typeof root.script === 'string' && root.script.trim()) ||
+          'No synopsis available',
         tags: Array.isArray(root.shortPlayLabels) ? root.shortPlayLabels : [],
         playCount: String(root.heatScoreShow || root.playCount || ''),
       }}

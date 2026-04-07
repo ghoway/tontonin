@@ -17,7 +17,20 @@ function pickStreamUrl(payload: unknown): string | null {
   }
   if (typeof payload === 'object') {
     const obj = payload as Record<string, unknown>;
-    for (const key of ['url', 'streamUrl', 'playUrl', 'videoUrl', 'src', 'link', 'mediaUrl', 'downloadUrl']) {
+    for (const key of [
+      'url',
+      'streamUrl',
+      'playUrl',
+      'videoUrl',
+      'src',
+      'link',
+      'mediaUrl',
+      'downloadUrl',
+      'MainPlayUrl',
+      'BackupPlayUrl',
+      'mainPlayUrl',
+      'backupPlayUrl',
+    ]) {
       const value = obj[key];
       if (typeof value === 'string' && value.trim()) {
         if (value.startsWith('http://') || value.startsWith('https://')) return value;

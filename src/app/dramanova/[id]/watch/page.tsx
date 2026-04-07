@@ -16,7 +16,10 @@ async function WatchContent({ id, episode }: { id: string; episode?: string }) {
     );
   }
 
-  const drama = Array.isArray(detailData) ? detailData[0] : detailData;
+  const detailRoot = (detailData && typeof detailData === 'object') ? (detailData as Record<string, any>) : {};
+  const drama =
+    (detailRoot.data && typeof detailRoot.data === 'object' ? detailRoot.data : null) ||
+    (Array.isArray(detailData) ? detailData[0] : detailData);
 
   if (!drama) {
     return (
@@ -26,23 +29,19 @@ async function WatchContent({ id, episode }: { id: string; episode?: string }) {
     );
   }
 
-  // DramaNova returns subtitle list and file IDs
-  // We need to map subtitle list to episode numbers
+  // DramaNova exposes episode + fileId under data.episodes
   let streams: any[] = [];
   let episodeCount = 0;
 
-  if (drama.subtitle && Array.isArray(drama.subtitle)) {
-    // Map subtitle entries to episodes
-    episodeCount = drama.subtitle.length;
-    streams = drama.subtitle
-      .map((sub: any, index: number) => ({
-        episode: index + 1,
-        providerVideoId: sub.fileId ? String(sub.fileId) : undefined,
+  if (Array.isArray(drama.episodes)) {
+    episodeCount = drama.episodes.length;
+    streams = drama.episodes
+      .map((ep: any, index: number) => ({
+        episode: Number(ep?.episodeNumber) || index + 1,
+        providerVideoId: ep?.fileId ? String(ep.fileId) : undefined,
       }))
       .filter((s: any) => s.providerVideoId);
   }
-
-  const episodeButtons = Array.from({ length: episodeCount }, (_, i) => i + 1);
 
   return (
     <>
@@ -51,11 +50,11 @@ async function WatchContent({ id, episode }: { id: string; episode?: string }) {
         drama={{
           bookId: drama.dramaId || id,
           bookName: drama.title || drama.name || 'Unknown',
-          coverWap: drama.poster || drama.cover || drama.image || '',
+          coverWap: drama.posterImg || drama.posterImgUrl || drama.poster || drama.cover || drama.image || '',
           chapterCount: episodeCount,
           introduction: drama.description || drama.synopsis || 'No synopsis available',
-          tags: drama.tags || drama.genres || [],
-          playCount: drama.views || '',
+          tags: drama.categoryNames || drama.tags || drama.genres || [],
+          playCount: drama.viewCount || drama.views || '',
         }}
         streams={streams}
         initialEpisode={episode || '1'}
