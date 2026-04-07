@@ -193,6 +193,13 @@ export async function getReelShortForYou(page?: number) {
   return [];
 }
 
+export async function getReelShortHomepage() {
+  const result = await apiFetch('/api/reelshort/homepage');
+  const normalized = asArray(result);
+  if (normalized.length > 0) return normalized;
+  return [];
+}
+
 export async function getReelShortSearch(query: string) {
   return apiFetch(`/api/reelshort/search?query=${encodeURIComponent(query)}`);
 }

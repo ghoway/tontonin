@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Section } from '@/components/Section';
 import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
-import { getReelShortForYou, getReelShortSearch } from '@/lib/api';
+import { getReelShortForYou, getReelShortHomepage, getReelShortSearch } from '@/lib/api';
 
 export const revalidate = 300;
 
@@ -11,6 +11,13 @@ async function ForYouSection() {
   const dramas = Array.isArray(data) ? data : [];
 
   return <ExpandableDramaSection title="Untuk Kamu" dramas={dramas} type="reelshort" initialVisible={18} />;
+}
+
+async function HomepageSection() {
+  const data = await getReelShortHomepage();
+  const dramas = Array.isArray(data) ? data : [];
+
+  return <ExpandableDramaSection title="Lainnya" dramas={dramas} type="reelshort" initialVisible={18} />;
 }
 
 async function SearchSection({ query }: { query: string }) {
@@ -27,11 +34,15 @@ async function SearchSection({ query }: { query: string }) {
 
 function LoadingSkeleton() {
   return (
-    <Section title="Untuk Kamu">
-      {Array.from({ length: 18 }).map((_, i) => (
-        <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+    <>
+      {['Untuk Kamu', 'Lainnya'].map((title) => (
+        <Section key={title} title={title}>
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div key={i} className="h-60 bg-zinc-800 rounded-lg animate-pulse" />
+          ))}
+        </Section>
       ))}
-    </Section>
+    </>
   );
 }
 
@@ -54,9 +65,15 @@ export default async function ReelShortPage({
               <SearchSection query={query} />
             </Suspense>
           ) : (
-            <Suspense fallback={<LoadingSkeleton />}>
-              <ForYouSection />
-            </Suspense>
+            <>
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ForYouSection />
+              </Suspense>
+
+              <Suspense fallback={<LoadingSkeleton />}>
+                <HomepageSection />
+              </Suspense>
+            </>
           )}
         </div>
       </div>
