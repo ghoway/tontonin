@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useError } from '@/components/ErrorModal';
 
@@ -85,7 +85,9 @@ export function WatchClient({
   const [resolvedUrl, setResolvedUrl] = useState<string>('');
   const [isResolving, setIsResolving] = useState(false);
   const [showEpisodeList, setShowEpisodeList] = useState(false);
+  const [showPagination, setShowPagination] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const paginationHideTimerRef = useRef<number | null>(null);
   const resolvedUrlCacheRef = useRef<Map<number, string>>(new Map());
   const shouldAutoplayOnSourceChangeRef = useRef(true);
   const maxEpisode = drama.chapterCount || streams.length || 0;
@@ -110,6 +112,35 @@ export function WatchClient({
     if (clean.endsWith('.webm')) return 'video/webm';
     return undefined;
   }, [resolvedUrl]);
+
+  const clearPaginationHideTimer = useCallback(() => {
+    if (paginationHideTimerRef.current !== null) {
+      window.clearTimeout(paginationHideTimerRef.current);
+      paginationHideTimerRef.current = null;
+    }
+  }, []);
+
+  const schedulePaginationHide = useCallback(() => {
+    clearPaginationHideTimer();
+    paginationHideTimerRef.current = window.setTimeout(() => {
+      setShowPagination(false);
+    }, 3000);
+  }, [clearPaginationHideTimer]);
+
+  const showPaginationTemporarily = useCallback(() => {
+    setShowPagination(true);
+    schedulePaginationHide();
+  }, [schedulePaginationHide]);
+
+  useEffect(() => {
+    showPaginationTemporarily();
+  }, [currentEpisode, showPaginationTemporarily]);
+
+  useEffect(() => {
+    return () => {
+      clearPaginationHideTimer();
+    };
+  }, [clearPaginationHideTimer]);
 
   useEffect(() => {
     let isActive = true;
@@ -289,6 +320,7 @@ export function WatchClient({
   const handleEpisodeChange = (ep: number) => {
     shouldAutoplayOnSourceChangeRef.current = true;
     setCurrentEpisode(ep);
+    showPaginationTemporarily();
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
     }
@@ -358,6 +390,7 @@ export function WatchClient({
           }}
           onClick={(e) => {
             e.preventDefault();
+            showPaginationTemporarily();
             if (!videoRef.current) return;
             if (videoRef.current.paused) {
               videoRef.current.play().catch(() => {
@@ -373,7 +406,11 @@ export function WatchClient({
         </video>
 
         {/* Bottom Episode Counter with Navigation */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+        <div
+          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 transition-opacity duration-300 ${
+            showPagination ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
           <div className="flex items-center gap-4 bg-black/60 px-4 py-2 rounded text-white text-sm font-semibold">
             <button
               onClick={() => {
