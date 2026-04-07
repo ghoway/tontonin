@@ -14,6 +14,9 @@ interface PaginatedDramaSectionProps {
   loadStep?: number;
   fetchEndpoint: string;
   initialPage?: number;
+  queryParamName?: string;
+  initialQueryValue?: number;
+  queryStep?: number;
 }
 
 export function PaginatedDramaSection({
@@ -24,10 +27,15 @@ export function PaginatedDramaSection({
   loadStep = 10,
   fetchEndpoint,
   initialPage = 1,
+  queryParamName = 'page',
+  initialQueryValue,
+  queryStep,
 }: PaginatedDramaSectionProps) {
   const [allDramas, setAllDramas] = useState(initialDramas);
   const [visibleCount, setVisibleCount] = useState(initialVisible);
-  const [currentPage, setCurrentPage] = useState(initialPage + 1);
+  const [currentQueryValue, setCurrentQueryValue] = useState(
+    initialQueryValue ?? initialPage + 1
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [hasReachedMax, setHasReachedMax] = useState(false);
 
@@ -126,7 +134,7 @@ export function PaginatedDramaSection({
     // Otherwise, load the next page
     setIsLoading(true);
     try {
-      const response = await fetch(`${fetchEndpoint}?page=${currentPage}`);
+      const response = await fetch(`${fetchEndpoint}?${queryParamName}=${currentQueryValue}`);
       const payload = await response.json();
       const newDramas = Array.isArray(payload)
         ? payload
@@ -153,19 +161,19 @@ export function PaginatedDramaSection({
 
       if (deduplicated.length === 0) {
         setHasReachedMax(true);
-        setCurrentPage((prev) => prev + 1);
+        setCurrentQueryValue((prev) => prev + (queryStep ?? 1));
         return;
       }
 
       setAllDramas((prev) => [...prev, ...deduplicated]);
-      setCurrentPage((prev) => prev + 1);
+      setCurrentQueryValue((prev) => prev + (queryStep ?? 1));
       setVisibleCount((prev) => Math.min(prev + loadStep, allDramas.length + deduplicated.length));
     } catch {
       setHasReachedMax(true);
     } finally {
       setIsLoading(false);
     }
-  }, [visibleCount, allDramas, currentPage, loadStep, fetchEndpoint]);
+  }, [visibleCount, allDramas, currentQueryValue, loadStep, fetchEndpoint, queryParamName, queryStep]);
 
   return (
     <>

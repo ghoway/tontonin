@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { Navigation } from '@/components/Navigation';
-import { Section } from '@/components/Section';
 import { ExpandableDramaSection } from '@/components/ExpandableDramaSection';
 import { PaginatedDramaSection } from '@/components/PaginatedDramaSection';
 import { getMeloloDetail, getMeloloForYou, getMeloloLatest, getMeloloSearch, getMeloloTrending } from '@/lib/api';
@@ -35,14 +34,13 @@ async function enrichMeloloCovers(dramas: any[]): Promise<any[]> {
 
   return Promise.all(
     dramas.map(async (drama) => {
-      const hasRenderableCover = Boolean(
-        drama?.series_cover || drama?.book_pic || drama?.first_chapter_cover || drama?.cover || drama?.coverWap
-      );
+      const hasRenderableCover = Boolean(drama?.series_cover || drama?.book_pic || drama?.cover || drama?.coverWap);
 
       if (hasRenderableCover) return drama;
 
-      const id = drama?.bookId || drama?.book_id || drama?.series_id_str;
-      if (!id || typeof id !== 'string') return drama;
+      const idRaw = drama?.bookId || drama?.book_id || drama?.series_id_str;
+      const id = idRaw == null ? '' : String(idRaw).trim();
+      if (!id) return drama;
 
       try {
         const detail = await getMeloloDetail(id);
@@ -70,21 +68,6 @@ function normalizeThumbUrl(url: unknown) {
   return `https://p16-novel-sg.ibyteimg.com/novel-images-sg/${match[1]}~tplv-shrink:640:0.jpg`;
 }
 
-async function ForYouSection() {
-  const data = await getMeloloForYou();
-  const dramas = Array.isArray(data) ? data : [];
-  const withCover = await enrichMeloloCovers(dramas);
-  const withThumbUrl = withCover.map((drama) => {
-    const { series_cover, book_pic, first_chapter_cover, ...rest } = drama || {};
-    return {
-      ...rest,
-      thumb_url: normalizeThumbUrl(rest.thumb_url),
-    };
-  });
-
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={withThumbUrl} type="melolo" />;
-}
-
 async function LatestSection() {
   const data = await getMeloloLatest();
   const dramas = Array.isArray(data) ? data : [];
@@ -102,16 +85,25 @@ async function TrendingSection() {
 }
 
 async function LainnyaSection() {
-  const latest = await getMeloloLatest();
-  const dramas = Array.isArray(latest) ? latest : [];
+  const forYou = await getMeloloForYou(10);
+  const dramas = Array.isArray(forYou) ? forYou : [];
   const withCover = await enrichMeloloCovers(dramas);
+  const withThumbUrl = withCover.map((drama) => ({
+    ...drama,
+    thumb_url: normalizeThumbUrl(drama?.thumb_url),
+  }));
 
   return (
     <PaginatedDramaSection
       title="Lainnya"
-      initialDramas={withCover}
+      initialDramas={withThumbUrl}
       type="melolo"
+      initialVisible={10}
+      loadStep={10}
       fetchEndpoint="/api/melolo/foryou"
+      queryParamName="offset"
+      initialQueryValue={20}
+      queryStep={10}
     />
   );
 }
@@ -165,10 +157,6 @@ export default async function MeloloPage({
             </Suspense>
           ) : (
             <>
-              <Suspense fallback={<LoadingSkeleton />}>
-                <ForYouSection />
-              </Suspense>
-              
               <Suspense fallback={<LoadingSkeleton />}>
                 <LatestSection />
               </Suspense>

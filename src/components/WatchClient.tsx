@@ -350,7 +350,12 @@ export function WatchClient({
 
   return (
     <div className="relative w-screen h-screen bg-black overflow-hidden">
-      <div className="w-full h-full relative">
+      <div
+        className="w-full h-full relative"
+        onMouseMove={showPaginationTemporarily}
+        onMouseEnter={showPaginationTemporarily}
+        onTouchStart={showPaginationTemporarily}
+      >
         {/* Back Button */}
         <Link
           href={backHref || `/dramabox/${drama.bookId}`}
@@ -407,7 +412,7 @@ export function WatchClient({
 
         {/* Bottom Episode Counter with Navigation */}
         <div
-          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 transition-transform duration-300 ease-out ${
+          className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 transition-transform duration-300 ease-out ${
             showPagination ? 'translate-y-0' : 'translate-y-20 pointer-events-none'
           }`}
         >
