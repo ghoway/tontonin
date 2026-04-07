@@ -62,12 +62,27 @@ async function enrichMeloloCovers(dramas: any[]): Promise<any[]> {
   );
 }
 
+function normalizeThumbUrl(url: unknown) {
+  if (typeof url !== 'string' || !url.trim()) return '';
+  const match = url.match(/\/novel-images-sg\/([^?]+)~tplv-/i);
+  if (!match?.[1]) return url;
+
+  return `https://p16-novel-sg.ibyteimg.com/novel-images-sg/${match[1]}~tplv-shrink:640:0.jpg`;
+}
+
 async function ForYouSection() {
   const data = await getMeloloForYou();
   const dramas = Array.isArray(data) ? data : [];
   const withCover = await enrichMeloloCovers(dramas);
+  const withThumbUrl = withCover.map((drama) => {
+    const { series_cover, book_pic, first_chapter_cover, ...rest } = drama || {};
+    return {
+      ...rest,
+      thumb_url: normalizeThumbUrl(rest.thumb_url),
+    };
+  });
 
-  return <ExpandableDramaSection title="Untuk Kamu" dramas={withCover} type="melolo" />;
+  return <ExpandableDramaSection title="Untuk Kamu" dramas={withThumbUrl} type="melolo" />;
 }
 
 async function LatestSection() {

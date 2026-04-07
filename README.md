@@ -1,69 +1,103 @@
-# Nontonin - Streaming Platform
+# Nontonin
 
-Platform streaming drama, film, dan anime gratis tanpa login yang menggunakan API dari Sansekai.
+Nontonin is a multi-source short drama streaming web app built with Next.js, TypeScript, and Tailwind CSS.
+
+This README is the primary project documentation.
+
+The app uses a dark cinematic UI with violet-indigo gradients, smooth watch interactions, and a simple media-player icon style.
 
 ## Features
 
-- ✅ Browsing drama dari berbagai sumber (DramaBox, ReelShort, ShortMax, NetShort, Melolo, FreeReels, DramaNova)
-- ✅ Grid layout responsif untuk semua device
-- ✅ Loading skeleton untuk UX yang lebih baik
-- ✅ Detail page untuk setiap drama
-- ✅ Dark theme modern dan sleek
-- ✅ Navigasi antar sumber drama
+- Multi-source browsing: DramaBox, ReelShort, ShortMax, NetShort, Melolo, FreeReels, and DramaNova
+- Responsive grid and watch experience for desktop and mobile
+- Episode navigation in watch player with auto-hide controls
+- Search and detail pages per provider
+- Video loading overlay with centered spinner and status text
+- Error states and fallbacks for unavailable streams
+- Favicon generated from the same logo style used in the header ([src/app/icon.tsx](src/app/icon.tsx))
+- Melolo "Untuk Kamu" thumbnails use `thumb_url` rewritten to a browser-friendly JPG source
 
-## Getting Started
+## Theme and Color Styling
 
-Install dependencies:
+Current visual direction:
+
+- Base background: black (#000000)
+- Foreground text: white (#ffffff)
+- Accent family: violet to indigo gradients with zinc neutrals
+- Global tokens live in [src/app/globals.css](src/app/globals.css)
+
+Logo and favicon styling:
+
+- Rounded square gradient block (violet to indigo)
+- White play symbol centered
+- Matches the header logo visual identity
+
+Video loading overlay styling:
+
+- Circular spinner ring with violet-indigo accent
+- Centered loading title and helper subtitle
+- Designed for strong contrast on dark watch pages
+
+## Installation
+
+1. Install dependencies:
 
 ```bash
 pnpm install
-# or
+```
+
+Alternative package managers:
+
+```bash
 npm install
 # or
 yarn install
 ```
 
-Run the development server:
+2. Start development server:
 
 ```bash
 pnpm dev
-# or
-npm run dev
-# or
-yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Open http://localhost:3000
 
-# or
+## Key Paths
 
-pnpm dev
+- App favicon generator: [src/app/icon.tsx](src/app/icon.tsx)
+- Header logo UI: [src/components/Header.tsx](src/components/Header.tsx)
+- Watch loading overlay: [src/components/WatchClient.tsx](src/components/WatchClient.tsx)
+- Global theme tokens: [src/app/globals.css](src/app/globals.css)
+- Melolo thumbnail handling: [src/app/melolo/page.tsx](src/app/melolo/page.tsx)
 
-# or
+## Production
 
-bun dev
-
+```bash
+pnpm build
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Environment variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+NEXT_PUBLIC_APP_NAME="Nontonin"
+NEXT_PUBLIC_API_URL="https://api.sansekai.my.id/"
 ```
-# tontonin
+
+## Tech Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- React
+
+## Notes
+
+- The temporary image proxy route is no longer used.
+- Melolo For You cards now point directly to the JPG rendition derived from `thumb_url`.
+
+## Acknowledgements
+
+Special thanks to Sansekai for providing the API powering this project.

@@ -407,8 +407,8 @@ export function WatchClient({
 
         {/* Bottom Episode Counter with Navigation */}
         <div
-          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 transition-opacity duration-300 ${
-            showPagination ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 transition-transform duration-300 ease-out ${
+            showPagination ? 'translate-y-0' : 'translate-y-20 pointer-events-none'
           }`}
         >
           <div className="flex items-center gap-4 bg-black/60 px-4 py-2 rounded text-white text-sm font-semibold">
@@ -474,7 +474,14 @@ export function WatchClient({
         {/* Loading/Error Indicators */}
         {isResolving && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
-            <p className="text-yellow-400 text-center">⏳ Memuat video...</p>
+            <div className="flex flex-col items-center justify-center text-center gap-3 px-4">
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 rounded-full border-4 border-zinc-700/70" />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-violet-500 border-r-indigo-500 animate-spin" />
+              </div>
+              <p className="text-white text-3xl font-semibold">Memuat video...</p>
+              <p className="text-zinc-300 text-lg">Mohon tunggu sebentar, data sedang diambil.</p>
+            </div>
           </div>
         )}
         {!isResolving && !resolvedUrl && (

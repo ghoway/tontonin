@@ -135,8 +135,7 @@ export function PaginatedDramaSection({
       setAllDramas((prev) => [...prev, ...deduplicated]);
       setCurrentPage((prev) => prev + 1);
       setVisibleCount((prev) => Math.min(prev + loadStep, allDramas.length + deduplicated.length));
-    } catch (error) {
-      console.error('Failed to load more dramas:', error);
+    } catch {
       setHasReachedMax(true);
     } finally {
       setIsLoading(false);

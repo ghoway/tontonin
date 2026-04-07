@@ -10,8 +10,7 @@ export async function GET(request: Request) {
     const dramas = Array.isArray(data) ? data : [];
 
     return Response.json(dramas);
-  } catch (error) {
-    console.error('Error fetching DramaBox foryou:', error);
+  } catch {
     return Response.json([], { status: 500 });
   }
 }

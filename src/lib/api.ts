@@ -69,8 +69,6 @@ async function apiFetch(endpoint: string, options: FetchOptions = {}) {
       });
 
       if (!response.ok) {
-        console.error(`API Error: ${response.status} ${response.statusText}`);
-
         if (cacheable) {
           apiCache.set(cacheKey, {
             data: null,
@@ -91,8 +89,7 @@ async function apiFetch(endpoint: string, options: FetchOptions = {}) {
       }
 
       return json;
-    } catch (error) {
-      console.error('API Fetch Error:', error);
+    } catch {
 
       if (cacheable) {
         apiCache.set(cacheKey, {

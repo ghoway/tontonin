@@ -161,8 +161,7 @@ async function WatchContent({ bookId, episode }: { bookId: string; episode?: str
         <WatchClient drama={drama} streams={finalStreams} initialEpisode={episode || '1'} />
       </div>
     );
-  } catch (error) {
-    console.error('[WatchPage] Error:', error);
+  } catch {
     return (
       <div className="text-center py-12">
         <p className="text-red-400 mb-4">Terjadi kesalahan saat memuat drama</p>
