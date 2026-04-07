@@ -80,8 +80,39 @@ export function Header() {
   const handlePick = (id: string) => {
     setShowSuggestions(false);
     setQuery('');
+    setSearchOpen(false);
     router.push(`${searchBasePath}/${id}`);
   };
+
+  const suggestionsPanel = (
+    <div className="absolute left-0 right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto">
+      {loading ? (
+        <div className="p-3 text-zinc-400 text-sm">Mencari...</div>
+      ) : suggestions.length === 0 ? (
+        <div className="p-3 text-zinc-400 text-sm">Tidak ada hasil</div>
+      ) : (
+        suggestions.map((item) => (
+          <button
+            key={`${item.provider}-${item.id}`}
+            onClick={() => handlePick(item.id)}
+            className="w-full text-left p-3 hover:bg-zinc-800 border-b border-zinc-800 last:border-b-0 flex gap-3 items-center"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.image || '/placeholder.svg'}
+              alt={item.title}
+              className="w-10 h-14 rounded object-cover bg-zinc-800"
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.src = '/placeholder.svg';
+              }}
+            />
+            <span className="text-zinc-100 text-sm line-clamp-2">{item.title}</span>
+          </button>
+        ))
+      )}
+    </div>
+  );
 
   return (
     <header className="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-50">
@@ -114,33 +145,7 @@ export function Header() {
             </form>
 
             {showSuggestions && (
-              <div className="absolute left-0 right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto">
-                {loading ? (
-                  <div className="p-3 text-zinc-400 text-sm">Mencari...</div>
-                ) : suggestions.length === 0 ? (
-                  <div className="p-3 text-zinc-400 text-sm">Tidak ada hasil</div>
-                ) : (
-                  suggestions.map((item) => (
-                    <button
-                      key={`${item.provider}-${item.id}`}
-                      onClick={() => handlePick(item.id)}
-                      className="w-full text-left p-3 hover:bg-zinc-800 border-b border-zinc-800 last:border-b-0 flex gap-3 items-center"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image || '/placeholder.svg'}
-                        alt={item.title}
-                        className="w-10 h-14 rounded object-cover bg-zinc-800"
-                        onError={(e) => {
-                          const img = e.target as HTMLImageElement;
-                          img.src = '/placeholder.svg';
-                        }}
-                      />
-                      <span className="text-zinc-100 text-sm line-clamp-2">{item.title}</span>
-                    </button>
-                  ))
-                )}
-              </div>
+              suggestionsPanel
             )}
           </div>
 
@@ -157,16 +162,19 @@ export function Header() {
 
         {/* Mobile Search */}
         {searchOpen && (
-          <div className="pb-4 block sm:hidden">
+          <div className="pb-4 block sm:hidden relative">
             <form onSubmit={submitSearch}>
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => query.trim().length >= 2 && setShowSuggestions(true)}
                 placeholder="Cari drama, film, anime..."
                 className="w-full px-4 py-2 bg-zinc-800 text-white placeholder-zinc-500 rounded-lg border border-zinc-700 focus:border-blue-500 focus:outline-none transition-colors"
               />
             </form>
+
+            {showSuggestions && <div className="mt-2">{suggestionsPanel}</div>}
           </div>
         )}
       </div>
