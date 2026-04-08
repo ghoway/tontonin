@@ -125,7 +125,7 @@ export function WatchClient({
     clearPaginationHideTimer();
     paginationHideTimerRef.current = window.setTimeout(() => {
       setShowPagination(false);
-    }, 3000);
+    }, 1000);
   }, [clearPaginationHideTimer]);
 
   const showPaginationTemporarily = useCallback(() => {
@@ -468,8 +468,8 @@ export function WatchClient({
 
         {/* Bottom Episode Counter with Navigation */}
         <div
-          className={`absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 transition-transform duration-300 ease-out ${
-            showPagination ? 'translate-y-0' : 'translate-y-20 pointer-events-none'
+          className={`absolute bottom-20 sm:bottom-20 md:bottom-20 left-1/2 transform -translate-x-1/2 z-20 transition-transform duration-1000 ease-out ${
+            showPagination ? 'translate-y-0 opacity-100' : 'translate-y-40 opacity-0 pointer-events-none'
           }`}
         >
           <div className="flex items-center gap-4 bg-black/60 px-4 py-2 rounded text-white text-sm font-semibold">
