@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { optimizeBg, optimizePoster } from "@/lib/image-utils";
+import { openAffiliateBeforeWatch } from "@/lib/affiliate";
 
 export default function DramaNovaDetailPage() {
   const params = useParams<{ bookId: string }>();
@@ -34,6 +35,12 @@ export default function DramaNovaDetailPage() {
   const firstEpisodeId = firstEpisode?.id;
 
   const rawPosterUrl = drama.posterImgUrl || drama.posterImg || "";
+  const watchHref = firstEpisodeId ? `/watch/dramanova/${params.bookId}/${firstEpisodeId}` : "";
+  const handleWatchClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (!watchHref) return;
+    void openAffiliateBeforeWatch(() => router.push(watchHref));
+  };
 
   return (
     <main className="min-h-screen pt-20">
@@ -70,7 +77,8 @@ export default function DramaNovaDetailPage() {
               {firstEpisodeId && (
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                   <Link
-                    href={`/watch/dramanova/${params.bookId}/${firstEpisodeId}`}
+                    href={watchHref}
+                    onClick={handleWatchClick}
                     className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
                   >
                     <Play className="w-5 h-5 fill-current" />
@@ -116,7 +124,8 @@ export default function DramaNovaDetailPage() {
               {/* Watch Button */}
               {firstEpisodeId && (
                 <Link
-                  href={`/watch/dramanova/${params.bookId}/${firstEpisodeId}`}
+                  href={watchHref}
+                  onClick={handleWatchClick}
                   className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-primary-foreground transition-all hover:scale-105 shadow-lg"
                   style={{ background: "var(--gradient-primary)" }}
                 >

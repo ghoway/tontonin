@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import type { DramaDetailDirect, DramaDetailResponseLegacy } from "@/types/drama";
 import { optimizeBg, optimizePoster } from "@/lib/image-utils";
+import { openAffiliateBeforeWatch } from "@/lib/affiliate";
 
 // Helper to check if response is new format
 function isDirectFormat(data: unknown): data is DramaDetailDirect {
@@ -24,6 +25,11 @@ export default function DramaBoxDetailPage() {
   const bookId = params.bookId;
   const router = useRouter();
   const { data, isLoading, error } = useDramaDetail(bookId || "");
+  const watchHref = `/watch/dramabox/${bookId}`;
+  const handleWatchClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    void openAffiliateBeforeWatch(() => router.push(watchHref));
+  };
 
   if (isLoading) {
     return <DetailSkeleton />;
@@ -111,7 +117,8 @@ export default function DramaBoxDetailPage() {
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                 <Link
-                  href={`/watch/dramabox/${book.bookId}`}
+                  href={watchHref}
+                  onClick={handleWatchClick}
                   className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
                 >
                   <Play className="w-5 h-5 fill-current" />
@@ -163,7 +170,8 @@ export default function DramaBoxDetailPage() {
 
               {/* Watch Button */}
               <Link
-                href={`/watch/dramabox/${book.bookId}`}
+                href={watchHref}
+                onClick={handleWatchClick}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-primary-foreground transition-all hover:scale-105 shadow-lg"
                 style={{ background: "var(--gradient-primary)" }}
               >

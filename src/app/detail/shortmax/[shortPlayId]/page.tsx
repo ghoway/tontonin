@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { optimizeBg, optimizePoster } from "@/lib/image-utils";
+import { openAffiliateBeforeWatch } from "@/lib/affiliate";
 
 export default function ShortMaxDetailPage() {
   const params = useParams<{ shortPlayId: string }>();
@@ -14,6 +15,11 @@ export default function ShortMaxDetailPage() {
   const router = useRouter();
 
   const { data, isLoading, error } = useShortMaxDetail(shortPlayId || "");
+  const watchHref = `/watch/shortmax/${shortPlayId}?ep=1`;
+  const handleWatchClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    void openAffiliateBeforeWatch(() => router.push(watchHref));
+  };
 
   if (isLoading) {
     return <DetailSkeleton />;
@@ -66,7 +72,8 @@ export default function ShortMaxDetailPage() {
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                 <Link
-                  href={`/watch/shortmax/${data.shortPlayId}?ep=1`}
+                  href={watchHref}
+                  onClick={handleWatchClick}
                   className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold flex items-center gap-2 hover:scale-105 transition-transform shadow-lg"
                 >
                   <Play className="w-5 h-5 fill-current" />
@@ -112,7 +119,8 @@ export default function ShortMaxDetailPage() {
 
               {/* Watch Button */}
               <Link
-                href={`/watch/shortmax/${data.shortPlayId}?ep=1`}
+                href={watchHref}
+                onClick={handleWatchClick}
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-primary-foreground transition-all hover:scale-105 shadow-lg"
                 style={{ background: "var(--gradient-primary)" }}
               >
